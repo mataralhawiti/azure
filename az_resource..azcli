@@ -1,0 +1,4 @@
+# Create RG
+az group create --location westeurope --name rg_playground --tags owner:'Matar' for:airflow'
+
+az storage account create --name saairflow --resource-group rg_airflow --location westeurope --access-tier cool --kind BlobStorage
