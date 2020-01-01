@@ -1,0 +1,2 @@
+# azure
+Playground for Azure
