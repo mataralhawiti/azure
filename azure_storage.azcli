@@ -1,0 +1,34 @@
+# create azure resource group
+az group create -location westeurope --name rg_playground --tags 'for=storage'
+
+# check storage account name
+az storage account check-name --name matarstore
+
+# Create 2 new storage accounts
+az storage account create --name matarstore -g rg_playground --kind StorageV2 --sku Premium_LRS
+az storage account create -n matarstore1 -g rg_playground --kind FileStorage -l westeurope  --sku Premium_LRS
+
+# list the accounts
+az storage account list --output table
+
+# use --query to get names only
+az storage account list --query [].name --output table
+
+# use --query to get name and kind only
+az storage account list --query [].[name,kind] --output table
+
+# use --query to get name and kind only with better coulmn names
+az storage account list --query "[].{Name:name, Kind:kind}" --output table
+
+# use --query to get name and sku name
+az storage account list --query [].[name,sku] --output table
+
+# use --query to get name and sku name, don't return sku sub-json
+az storage account list --query [].[name,sku.name] --output table 
+
+# use --query to get RG, name, kind and sku name
+az storage account list --query "[].{RG:resourceGroup, Name:name, Kind:kind, sku:sku.name}" --output table
+
+# delete storage accounts
+az storage account delete --yes --name matarstore1
+az storage account delete --yes --name matarstore1
