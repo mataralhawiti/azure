@@ -1,14 +1,21 @@
+# get list of regions
+az account list-locations --query [*].[displayName,name] --output table
+az account list-locations --query "[*].{DisplayName:displayName, Name:name}" --output table
+
+
 # create azure resource group
-az group create -location westeurope --name rg_playground --tags 'for=storage'
+az group create --location westeurope --name rg_playground --tags 'for=storage'
 
 # check storage account name
 az storage account check-name --name matarstore
 
 # Create 2 new storage accounts
-az storage account create --name matarstore -g rg_playground --kind StorageV2 --sku Premium_LRS
-az storage account create -n matarstore1 -g rg_playground --kind FileStorage -l westeurope  --sku Premium_LRS
+# sku : replication 
+# kind : storage account type (default : Storage)
+az storage account create --name matarstore --resource-group rg_playground --location westeurope --kind StorageV2 --sku Standard_LRS
+az storage account create -n matarstore1 -g rg_playground -l westeurope --kind FileStorage --sku Premium_LRS
 
-# list the accounts
+# list all storage accounts
 az storage account list --output table
 
 # use --query to get names only
@@ -26,9 +33,32 @@ az storage account list --query [].[name,sku] --output table
 # use --query to get name and sku name, don't return sku sub-json
 az storage account list --query [].[name,sku.name] --output table 
 
-# use --query to get RG, name, kind and sku name
+# use --query to get RG, name, kind and sku name of all accounts
 az storage account list --query "[].{RG:resourceGroup, Name:name, Kind:kind, sku:sku.name}" --output table
 
+
+# get all storage accounts in specific RG
+az storage account list -g rg_playground --query "[].{Name:name, Kind:kind, sku:sku.name, Location:Location}" --output table
+
+# show storage account propereties
+az storage account show -n matarstore
+
+# show storage account propereties
+az storage account show -n matarstore --query "{primaryEndpoints:name}"
+
+# show endpoints for a storage account
+az storage account show -n matarstore --query [primaryEndpoints]
+
+# update a storage account
+az storage account update --name matarstore --tags "for=learning"
+
+# list stroage accounts and tags on that account
+az storage account list -g rg_playground --query "[].{Name:name, Kind:kind, sku:sku.name, Location:Location, Tags:tags.for}" --output table
+
+# list all resource with tag "for"
+az resource list --tag for=learning
+
+
 # delete storage accounts
-az storage account delete --yes --name matarstore1
+az storage account delete --yes --name matarstore
 az storage account delete --yes --name matarstore1
