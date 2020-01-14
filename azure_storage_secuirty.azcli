@@ -1,0 +1,59 @@
+## uisng access keys
+
+## users :
+#storage
+#storage-nnadmin
+#storage-cont
+
+
+# run using storage admin (storage), will work because the user is assigned to access the keys
+az storage blob upload --container-name marketing  --file "C:\Users\user\Desktop\MyGitHub\azure\test.txt" --name asstorage.txt --account-name matarstore
+
+
+# run using unassigned user(storage-nnadmin) , will fail cuz it coudn't get the access keys
+az storage blob upload --container-name marketing  --file "C:\Users\user\Desktop\MyGitHub\azure\test.txt" --name asstoragewithnokeys.txt --account-name matarstore
+
+# run using unassigned user(storage-nnadmin) , but now we expliclitly provide the keys. It'll work
+az storage blob upload --container-name marketing  --file "C:\Users\user\Desktop\MyGitHub\azure\test.txt" --name asstoragewithnokeys.txt --account-name matarstore --account-key DpWxxxxxxx
+
+# using same user (storage-nnadmin), let's try to list storage-accounts in resource groups. it'll fail cuz it desn't have permission
+az storage account list --resource-group rg_playground
+
+# using same user (storage-nnadmin), let's try to list storage-accounts keys in the account. it'll fail cuz it desn't have permission
+az storage account keys list --account-name matarstore --resource-group rg_playground
+
+# using same user (storage-nnadmin), let's try to renew storage-accounts keys in the account. it'll fail cuz it desn't have permission
+az storage account keys renew --account-name matarstore --resource-group rg_playground --key secondary
+
+
+
+## let's asasign user (storage-nnadmin) to RBAC (Storage Account Key Operator Service Role)
+## it's common to use this RBAC with Azure service princabl
+
+# let's try list the keys after new RBAC assignment, it'll work:
+az storage account keys list --account-name matarstore --resource-group rg_playground
+
+# let's try renew the keys after new RBAC assignment, it'll work:
+az storage account keys renew --account-name matarstore --resource-group rg_playground --key secondary
+
+# but the user won't be able to list the account  cuz that RBAC doesn't grant list permission. it will return empty list
+az storage account list --resource-group rg_playground
+
+
+### SAS tokens
+
+# create stored access policy for Blob container, list/write permissions.. use "\" to break the line
+az storage container policy create --container-name marketing --name writepolicy --account-name matarstore --permissions lw --expiry 2020-01-15T00:00Z --account-key DpWxxxxxxx
+az storage container policy create --container-name marketing --name readpolicy --account-name matarstore --permissions lr --expiry 2020-01-16T00:00Z
+
+# list the stored access policy we just created
+az storage container policy list --container-name marketing --account-name matarstore
+
+# let's use the "stored access policy" to create SAS for a Blob, so all permissions will be applied to blobs/objects in the container
+az storage blob generate-sas --container-name marketing --name asstorage.txt --account-name matarstore --policy-name readpolicy --https-only
+
+# let's try list blob propierties using SAS instead of account keys (use differe user ):
+az storage blob show --container-name marketing --name asstorage.txt --account-name matarstore --sas-token "xdscdss"
+
+# let's try get blob url using SAS instead of account keys (use differe user ):
+az storage blob url --container-name marketing --name asstorage.txt --account-name matarstore --sas-token "sss"
