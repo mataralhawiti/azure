@@ -1,0 +1,19 @@
+##
+
+# check if log is enabled
+az storage logging show --account-name monitro
+
+# enable log read/write/delete for 7 daysm for Blob, queue, table
+az storage logging update --log rwd --retention 7 --services bqt --account-name monitro
+
+
+
+### azcopy - using CMD !
+# all files in blob to local
+azcopy copy "https://monitro.blob.core.windows.net/$logs/blob/2020/01/15/0700/*?se=xxxxxSASxxxxxxx" "C:\logs" --recursive
+
+# the dicrectory to local
+azcopy copy "https://monitro.blob.core.windows.net/$logs/blob?se=xxxxxSASxxxxxxx" "C:\logs" --recursive
+
+# specific file to local
+azcopy copy "https://monitro.blob.core.windows.net/$logs/blob/2020/01/15/0700/000001.log?se=xxxxxSASxxxxxxx" "C:\logs\000001.log"\ --overwrite=prompt --recursive --from-to=BlobLocal
