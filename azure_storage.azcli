@@ -62,3 +62,7 @@ az resource list --tag for=learning
 # delete storage accounts
 az storage account delete --yes --name matarstore
 az storage account delete --yes --name matarstore1
+
+
+# delete containers prefix :
+for container in `az storage container list --account-name adfmatar --prefix "1" --query "[*].[name]" --output tsv`; do az storage container delete --account-name adfmatar --name $container; done
