@@ -377,6 +377,39 @@ requirements :
 
 
 # Azure Data Lake Gen2, ACL in POSIX-compatible format.
+    : Scenario
+        Alan and Kerry are memebers of Marketing Azure AD secuirty group, set as a primary one for Azure AD accounts.
+        Kerry and David are memebers of Finance secuirty group, set as a primary for Davids' account
+
+        You set up a new directry in ADL Gen2, and owner group as Finance.
+        Kerry creates a new text file in the directry.
+        Your audit report indicates that access control list (ACL), for that file set to 640 in POSIX format.
+
+        You need to determine what access Permission Alan, kerry and David have to the new file.
+
+    : Access will be as :
+        -> Alan : No Access
+        -> Kerry : Read + write
+        -> David : Read only
+
+    : File Permission consists of 3 digits :
+        -> Owner : the user who created the item automatically become an Owner
+        -> Owner Group : in ADL Gen2, owner group is inherited from the parent folder.
+        -> Everyone : 
+    
+    : ADL Gen2, supports ACL in POSIX format-compatible format. assging numbers to different Permission Combinations. For example:
+        -> Read Only : 4
+        -> Write Only : 2
+        -> Exceute Only : 1
+        -> No Access : 0
+        -> Read + Write : 4+3 = 6
+        -> Read + Execute : 4+1 = 5
+        
+    : In our Scenario, 640 Permission set on the file can be translated :
+        -> Owner (Kerry) - [First digit] : 6, which means READ + WRITE (6)
+        -> Owner Group (Finance, which includes David) - [Second digit] : 4, which means READ only () 
+        -> Everyone - (Alan) [third digit]: 0, which means No access
+
 
 
 # Configure PolyBase to load data from ADL Gen2 to Azure DW, and shoudl NOT use AZure AD service principle.
