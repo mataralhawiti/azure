@@ -434,6 +434,9 @@ requirements :
     : We must use TYPE=HADOOP, when our data source is ADL or Storage Blob container
         ->      TYPE = HADOOP
                 LOCATION ='wasbs://xxx@sampl.blob.core.windows.net' --> Blob Storage Endpoint, ADL Gen2 has different Endpoint structure.
+
+        ->      TYPE = HADOOP
+                LOCATION = 'abfs[s]://file_system@account_name.dfs.core.windows.net/<path>/<path>/<file_name>' --> ADL Endpoint structure
     : Not 
         -> "BLOB_STORAGE" doesn't represent Azure Blob Storag.
             -> it simply designates the data source as one that will be used with BULK IMPORT or OPENROWSET
