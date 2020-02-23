@@ -34,20 +34,20 @@ from azure.eventhub import EventHubProducerClient
 from azure.eventhub import EventData
 
 # log to stout
-# logger = logging.getLogger('Azure_EventHub')
-# handler = logging.StreamHandler(sys.stdout)
-# logger.setLevel(logging.INFO)
-# logger.addHandler(handler)
-
-# log to log file
 logger = logging.getLogger('Azure_EventHub')
-handler = logging.FileHandler('eventhub.log')
+handler = logging.StreamHandler(sys.stdout)
 logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 
+# log to log file
+# logger = logging.getLogger('Azure_EventHub')
+# handler = logging.FileHandler('eventhub.log')
+# logger.setLevel(logging.INFO)
+# logger.addHandler(handler)
 
-SAS_KEY = ""
-EVENTHUB_NAME = "hub01"
+
+SAS_KEY = "Endpoint=sb://eventhub-ns-dev01.servicebus.windows.net/;SharedAccessKeyName=eventhub_sas;SharedAccessKey=ftj1EDpkAlVp+7rLgkTRjjgANh8kk3GxorYRlIUBWz0="
+EVENTHUB_NAME = "eventhub-dev01"
 
 producer = EventHubProducerClient.from_connection_string(conn_str = SAS_KEY, eventhub_name=EVENTHUB_NAME)
 event_data_batch = producer.create_batch()

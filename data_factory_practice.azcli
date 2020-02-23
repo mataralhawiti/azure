@@ -1,0 +1,67 @@
+# set subs
+az account set --subscription "Visual Studio Premium with MSDN"
+
+# rg
+az group create --name psdf-rg-dev01
+az group create --name psdf-rg-stg01
+az group create --name psdf-rg-prd01
+
+
+# storage 
+az storage account create --name psdfrgdev01 --resource-group psdf-rg-dev01 --access-tier Hot --kind BlobStorage --sku Standard_LRS
+az storage account create --name psdfrgstg01 --resource-group psdf-rg-stg01 --access-tier Hot --kind BlobStorage --sku Standard_LRS
+az storage account create --name psdfrgprd01 --resource-group psdf-rg-prd01 --access-tier Hot --kind BlobStorage --sku Standard_LRS
+
+
+# create blob containers
+az storage container create --name sink --account-name psdfrgdev01
+az storage container create --name staging --account-name psdfrgdev01
+
+az storage container create --name sink --account-name psdfrgstg01
+az storage container create --name staging --account-name psdfrgstg01
+
+az storage container create --name sink --account-name psdfrgprd01
+az storage container create --name staging --account-name psdfrgprd01
+
+
+### create data factory from portal
+
+# key valut 
+#"""
+#if you face : requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: http://localhost:50342/oauth2/token
+#then, az login again
+#"""
+az keyvault create --name psdf-key-dev01 --resource-group psdf-rg-dev01 --enable-soft-delete false
+az keyvault create --name psdf-key-stg01 --resource-group psdf-rg-stg01 --enable-soft-delete false
+az keyvault create --name psdf-key-prd01 --resource-group psdf-rg-prd01 --enable-soft-delete false
+
+
+# data factory
+psdf-factory-dev01
+psdf-factory-stg01
+psdf-factory-prd01
+
+
+### Configuring Azure Data Factory to Use Azure KeyVault
+# get storage connection string
+
+az storage account show-connection-string --name psdfrgdev01
+az storage account show-connection-string --name psdfrgstg01
+az storage account show-connection-string --name psdfrgprd01
+
+
+# create secrets
+az keyvault secret set --name storage-access-key --vault-name psdf-key-dev01 --description "connection string" --value "DefaultEndpointsProtocol=xxxxx-connection-string"
+az keyvault secret set --name storage-access-key --vault-name psdf-key-stg01 --description "connection string" --value "DefaultEndpointsProtocol=hxxxxx-connection-string"
+az keyvault secret set --name storage-access-key --vault-name psdf-key-prd01 --description "connection string" --value "DefaultEndpointsProtocol=xxxxx-connection-string"
+
+
+### set access policy on keyvault
+# errro : Unable to get object id from principal name.
+az keyvault set-policy --name psdf-key-dev01 --secret-permissions get --spn psdf-factory-dev01
+
+
+### clean up 
+az group delete --resource-group "psdf-rg-dev01"
+az group delete --resource-group "psdf-rg-stg01" --yes
+az group delete --resource-group "psdf-rg-prd01" --yes

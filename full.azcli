@@ -1,0 +1,58 @@
+# set subs
+az account set --subscription "Visual Studio Premium with MSDN"
+
+# rg
+az group create --name psdf-rg-dev01 
+
+
+
+# storage (EventHubs require BlockBlobStorage)
+#az storage account create --name psdfrgdev01 --resource-group psdf-rg-dev01 --kind BlockBlobStorage --sku Premium_LRS
+az storage account create --name psdfrgdev01 --resource-group psdf-rg-dev01 --access-tier Hot --kind BlobStorage --sku Standard_LRS
+
+# create blob containers
+az storage container create --name sink --account-name psdfrgdev01
+az storage container create --name staging --account-name psdfrgdev01
+
+
+### create data factory from portal
+
+# key valut 
+#"""
+#if you face : requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: http://localhost:50342/oauth2/token
+#then, az login again
+#"""
+az keyvault create --name psdf-key-dev01 --resource-group psdf-rg-dev01 --enable-soft-delete false
+
+
+# data factory
+psdf-factory-dev01
+
+
+
+### Configuring Azure Data Factory to Use Azure KeyVault
+# get storage connection string
+
+az storage account show-connection-string --name psdfrgdev01
+
+
+
+# create secrets
+az keyvault secret set --name storage-access-key --vault-name psdf-key-dev01 --description "connection string" --value "DefaultEndpointsProtocol=xxxxx-connection-string"
+
+
+### set access policy on keyvault
+# errro : Unable to get object id from principal name.
+# error : az keyvault set-policy --name psdf-key-dev01 --secret-permissions get --spn "psdf-factory-dev01"
+az keyvault set-policy --name psdf-key-dev01 --secret-permissions get --object-id 4045b363-4435-4659-8d8f-f84859b0ac43
+
+
+
+### create EventHub, and enable data capture to Blob
+# Create an Event Hubs namespace.
+az eventhubs namespace create --name eventhub-ns-dev01 --resource-group psdf-rg-dev01 --location westeurope
+# Create an Event Hub
+az eventhubs eventhub create --name eventhub-dev01 --resource-group psdf-rg-dev01 --namespace-name eventhub-ns-dev01 --enable-capture true --capture-interval 180 --blob-container sink --destination-name  EventHubArchive.AzureBlockBlob --storage-account psdfrgdev01
+
+### clean up 
+# az group delete --resource-group "psdf-rg-dev01" --yes

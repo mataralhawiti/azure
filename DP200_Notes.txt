@@ -1,0 +1,416 @@
+#1 : elastic pool replication
+
+create azure sql elastic pool in the other region
+Not
+Enable geo-replication for each database !
+
+
+@@ must review storage account comparion table
+#2 : redundecy strategy for storage ( outage in one Azure Avialibty Zone )
+Data redundecy strategy -> ZRS
+Storage account type -> Gen 2 cuz it supports ZRS , lower cost 
+
+
+Not
+Data redundecy strategy -> GRS
+    : will replicate to another Azure Region Not Azure Avialibty Zone
+    : Also, it increases the cost. and the requirements only asked for ZRS
+
+Storage account type -> Block Blob storage
+    : spcialized account used to store Block Blobs and append Blobs
+    : lower latency and higher transactions rates
+    : only supports premium, which is expensive
+
+
+
+#3 : daily adminstrative tasks for elastic pool
+elastic databases Jobs
+
+NOT
+SQL Agent -> for on-premise or managed instance
+
+
+# 4 : granular access (read and write) to CosmosDB for external app that we can't trust with master keys.
+Credential key -> Resource Token
+Permission -> All
+
+Not 
+
+Credential key -> Azure AD
+    : azure AD user is used to read data in CosmosDB from azure portal or Data explorer 
+    : you can't use Azure Ad user to authenticate via API
+
+
+#5 :
+    use Shared Access Signature (SAS) because it gives granular access control to specific blob and with expiration date
+
+#6 :
+    Always Encrypted with a randomized type won't allow for JOINS or GROUPS and etc.
+    randomized type will encrype columns with random generated values.
+
+    We should use Always Encrypted with a deterministic type, which will generate same values
+
+
+# 
+    Dynamic Data Masking (DDM) with (random, partial, or other functions) is used for limit data exposure NOT Data Encryption
+
+
+# Azure Stream Anyltics ASA
+requirements :
+    group events per line/product within specific time interval
+    not exceeding max duration for the window
+    filter out periods of time with no events getting
+    count each event once
+
+    Correct Answer --> Session window
+
+    Not Correct Answer --> Tumbling window
+        : fixed-size, non-overlapping and continuse time interval, eahc event occurs once
+        : HOWEVER => 
+            doesn't check the time duration between events
+            doesn't filter out periods of time when no events are streamed
+
+
+    Not Correct Answer --> Hopping window
+        : fixed-size, continuse time interval.
+        : if hop size is less than Window size, hopping windows overlap
+        : doesn't check the time duration between events
+        : doesn't filter out periods of time when no events are streamed
+
+
+    Not Correct Answer --> Sliding window
+        : fixed-size, continuse time interval.
+        : produce output only when events occur, 
+        : you can filter out periods of time when no events are streamed
+        : HOWEVER => 
+            Windows may overlap 
+           doesn't check the time duration between events
+
+
+
+
+# Query Performance Insight
+    : allows to view db queries that consume most resources, and those take long time to run
+    : NOT -> create or drop index
+
+
+# SQL Database Advisor 
+    : it allows to view recommondations for creating and dropping indexes
+    : fixing schemas
+    : paramtrize queries
+
+
+# Azure Advisor
+    : provides recommondations for  Avialibty, security, Performance and cost
+    : it integrates with SQL Database Advisor to provide recommondations for creating and dropping indexes
+
+
+# 
+    1. create blob container
+    2. create Azure Stream Anyltics job with edge hosting
+    3. configure azure blob storage container as save location for [job definition]
+    4. set up an IoT Edge environment on IoT device, and add stream Anyltics module
+    5. Configure routes in IoT Edge
+
+    : IoT Edge is a solution that analyze data on devices instead of the cloud, which will help reducing latency and bandiwth
+    : routes in IoT Edge, this will upstream events from Stream Anyltics job to an IoT Hub in the cloud, allowing Azure functions
+        for example to process data
+
+    : you shouldn't configure Stream Units (SU), because Stream Anyltics Job with Edge hosting 
+        doesn't consume SU. it only needed with cloud hosting
+
+
+# PolyBase in DWH
+    : External Data Source
+    : External File Formate
+    : External Table
+
+
+# HDInsight Monitoring 
+    : Apache Ambari -> to access YARN Queue Manager to monitor job distribution across the queue.
+    : Apache Ambari -> is enabled spreatly for each HDInsight cluster. Not consolidated view for all clusters.
+                       only support e-mail and SNMP alerts
+    : Azure Monitor Logs -> to get consolidated view across all HDInsight clusters in scope. For exmaple, CPU, RAM and Storage.
+                            Metrics and Logs from multiple HDInsight clusters can be sent to [Azure Anyltics workspace] in Azure Monitor
+
+
+# DMVs
+    : sys.dm_pdw_exec_requests -> for running or recently ran queries
+    : sys.dm_pdw_sql_requests -> distribution run times for a specific query step
+
+
+# Core SQL API
+    : support schema less data store
+    : semi-structure data
+    : allows to use SQL-like queries
+
+    Not
+    : Gremlin API -> doesn't have SQL-like queries
+    : Table API -> querying data using OData and Lanaguge Integrated Query (LINQ). No SQL-like queries
+    : MongoDB API -> No SQL-like queries
+
+
+# CosmosDB Strong Consistency Level
+    : Employee A, B, C 
+    : Employee A, changed column "Status" from "Pending" to "Closed"
+    : No commi
+
+    : what's all three Employee can read before it's committed and before Synchr occurs?
+        All Employee will read "Pending" even Employee A until the item is committed and Synced
+    
+
+# Azure SQL DW Gen2 Cashing 
+    : Scenario as :wokring data set doesn't fit compelelty into the cache. 
+        -> Configure Monitor Alert with low [cache hit percentage] and high [cache used percentage] Metrics
+
+    : Not 
+        -> high [cache hit percentage]  because cacheing with a high hit percentage donates a good use of cacheing.
+
+    : Not 
+        -> low [cache used percentage] because that means you have plenty of space in your cache
+
+
+# Monitor Files uploaded to Data Lake are larger than 20 MB in HDInsight
+    : Metrics -> Blob Capacity Avergae
+    : Dimension -> BlobTier
+
+    : We need [BlobTier] Dimension to filter out already processed data because Files are moved
+        to cool tier after HDInsight process them.
+
+    : Not
+        -> [Used Capacity Avergae] Metrics, because it shows the Avergae Capacity for Azure account storage.
+
+    : Not 
+        -> [BlobType] Dimension
+        -> [ResponseType] Dimension
+
+
+# Monitor chart to show how much data uploaded in each data fram. it's being uploaded to Blob storage
+    : Metrics Namespace -> Blob
+    : Metrics -> Ingress
+    : Aggregation (Dimension) -> Sum
+
+
+    : Not
+        -> Metrics Namespace -> account/files/queue cuz our requirements say Blob container
+        -> Metrics -> transactions cuz it only shows transactions count not type or size
+
+
+# Dynamic Data Maskig (DDM) for credit card. onyl 2 first digits and last 4 digits can be visiible
+    : use partial function to mask. it recives 3 arguments
+        -> Query 
+        ALTER TABLE [PAYMENT_CREDIT_CARD]
+        ALTER COLUMN [CREDIT_CARD]
+        ADD MASKED WITH (FUNCTION = 'partial(2, "xx-xxxx-xxxx-", 4')
+
+    : arg1 -> prefix of how many chars should be showen from the beginging of the calue
+    : arg2 -> pattern used for masking 
+    : arg3 -> suffix of how many chars are shown from the end.  
+
+
+# Query encryoed columns (Always Encrypted) 
+    : ALTER ANY COLUMN MASTER KEY 
+        -> (Required to manage [create and delete] master key, which encrypes/decrypts column encryption keys )
+
+    : ALTER ANY COLUMN ENCRYPTION KEY 
+        -> (Required to mange [create and delete] a column encryption key.)
+
+    : VIEW ANY COLUMN MASTER KEY DEFINITION 
+        -> (Required to access and read the metadata of the column master keys to manage keys or query encrypted columns.)
+
+    : VIEW ANY COLUMN ENCRYPTION KEY DEFINITION 
+        -> (Required to access and read the metadata of the column encryption key to manage keys or query encrypted columns.)
+
+
+
+# CosmosDB TTL 
+    : Scenario
+        single container, that store qulity checks (sucessful checks and defect detections).
+        We found out no benefits of keeping sucessful cheeks, so we want to automatically elete those records after an hour.
+        and defect detections records must be kept indefinitly.
+
+    : we need to set up in 2 places 
+        -> Set TTL in the container to (3600) .. seconds
+        -> Programmatily set TTL of [defect detections records] to (-1)
+
+    : This setting will keep all items in the container for an hour, expect defect detections records
+    
+    : Not
+        -> Set TTL in the container to (-1) because this means never expire by default
+        -> Programmatily set TTL of [defect detections records] to (null) because that means inhert TTL settings from uuper container.
+
+# Azure SQL Database Auditing
+    : Configure Log Analytics as audit log distention
+    : Enable Audit log at the server Level. Because this will enable auditing on all dbs in the server
+
+    : Not
+        -> Not DB auditing Level
+        -> Not Blob storage as a distention becuase you will then need to consume these logs with other services like Databricks and HDInsight
+
+
+# Azure Stream Anyltics Job Optimization
+: Scenario 
+    SA job uses 18 SU, ASA mertics and SU percentage utlization usage is 90% from last month
+    you need to optimize ASA job 
+
+: we should 
+    -> Partion Data for query paralleization
+        : partioning data increases job throughput and allows for an optimized use of avialble SU
+
+    -> increase SU count for the job
+        : SU represents compute the compute resources allocated for the job
+        : Too high SU % utlization indicates a high memeory consumption and higher latency to process events
+        : it's recommened to keep SU % below 80%
+
+    -> Query paralleization + high SU count = optimized job Performance
+
+
+
+# SQL DWH distribution
+    : Replicated Tables for Dims table
+        -> for small Dimension tables that change infrequnetly.
+        -> By replicating tables across Compute Nodes we elimniate the need for data transfer during JOIN with Fact table
+    
+    : Hash distribution
+        -> use Hash distribution for Fact table.
+        -> Hash distribution copies rows across Compute Nodes by using hashing function against column.
+        -> Rows with columns that have the same hash value are copied to the same compute Node.
+
+
+
+# ASA Window functions
+    : Scenario
+        capture events that repeat and do not overlap. you also want to capture time periods when there is no events !    
+    : -> use Tumbling Window
+    : Tumbling Window -> it segments event data into distinct time segements and then perform a function against each segement. it allows events repeat but not overlapping
+
+    : Not
+        -> Hopping Window, similar to umbling() but it allows overlapping
+        -> Sliding Window, it produces output only when event occurs
+        -> Session Window, it groups events that arrive at similair times. it filters out periods when there is no data.
+
+
+
+
+# Run Analytics on data to automatically generate bar charts, and it has to be Scheduled
+    : Scheduled Databricks Job
+    : Not
+        -> Scheduled Runbook in azure automation, becuase it's not generate visual !
+        -> Scheduled Azure function, becuase it's not generate visual!.
+        -> Scheduled WebJob, becuase it's not generate visual! ** WebJob runs in context of aZURE Service App
+
+
+
+# Query Store 
+    : Query store can help with things like 
+        -> "Creating x number of indexes on able"
+        -> Increase VM size. For example, if our SQL on VM
+
+    : Query Store allows to compare Performance before and after an anticopated change.
+    : Query Store can only monitor one database.
+        -> ALTER DATABASE XXXX SET QUERY_STORE = ON
+
+
+# Azure Table [row key] and [partioning key]
+    : partioning key allows to create logical partions that will enhance the Performance
+    : row key, uniquely identifies the row
+
+
+# HDInsight perofrmance optimization with mini cost.
+    : Scenario
+        logs files for each server stored in Data Lake Gen2, inside a single folder. and data is analyzed in HDInsight
+    : Combine Daily log files into one file.
+        -> HDInsight and other Analytics enegin have per-file overhead during processing.
+        -> Using small fils will quickly utlize the avialble throughput for Azure Data Lake Gen2 to read data
+        -> So, Organizing your data in larger files with szie from 265MBto 100GB result in better performance.
+
+    : Separate the log files into a daily generated folder.
+        -> partioning files in time series folders help HDInsightto load only subset of data thus imporve performance.
+        -> we can use hierarchic structure like \dataset\yyyy\mm\dd\datafile_yyyy_mm_dd.tsv
+
+    : Not
+        -> increase number of worker nodes, it enhance HDinsight throughput, but it increases the cost and don't fix high utlization of ADL throughput
+        -> Cool Tier for ADL Gen2, because this tier is optimzied for data that infrequnetly accessed. If we do so in this Scenario, we'll add more data access and transfer cost as we access the log data daily frequnetly
+
+
+# Elastic Pool with (DTU) provisioning model.
+    : Scenario
+        Monitor database based on a mertic that best anticopate out-of-Capacity and perofrmance issues.
+
+    : DTU percentage mertic
+        -> represents the percentage of DTU that is consumed by database, independent of the number of provisioned DTUs.
+        -> if you increase DUT of database, you don't need to edit alert for new Capacity
+
+    : Not
+        -> used DTU mertic
+            -> it could be used to anticopate perofrmance issues when DTU consumption is close to limit. 
+            -> you need to edit this alert if you increase DTU
+
+        -> CPU percentage mertic, Data IO percentage mertic
+            -> For DTU based models, CPU, Data IO and storage are bundled together in simplified performance mertic
+
+
+
+# Sending Databricks application mertics to Azure Monitor
+    : Dropwizard, mertics library
+    : Not
+        -> Log4j : sending application logs !!! not mertics
+
+
+# Azure CosmosDB partioning key
+    : Scenario
+        App spread across 5 regions, and oringe region is an item in CosmoseDB document, and we have sensorID (unique).
+        Queries originated from app usuallt filter the result by region and sensorID 
+    
+    : Region with pre-calculated stuffix based on sensorID
+        -> this partioin key will distribute all the documents evenly across logical partions.
+        -> Inclduing pre-calculated suffix based on known value (sensorID), will greatly imrpove both write and read throughput across partitions.
+
+    : Not
+        -> Region, this field only contains 5 values ! resulting in a small number of logical partioins and a low read and write throughput
+        -> sensorID, it's unique which will result in millions of logical partioins, impacting read and write throughput
+        -> timestampe with random suffix,
+            -> this partion key will distribute all documents across logical partions . 
+            -> greatly increase write throughput
+            -> HOWEVER, reading specific item will become harder because we don't know which suffix was used, imapcting read throughput
+
+
+
+# Azure Data Lake Gen2, ACL in POSIX-compatible format.
+
+
+# Configure PolyBase to load data from ADL Gen2 to Azure DW, and shoudl NOT use AZure AD service principle.
+    1. create aa scoped Credential with the azure storage access key
+    2. Create an external data source with HADOOP type.
+    3. Create an external file format
+    4. create an external table.
+    5. load the data inot the table
+
+    : ADL Gen2 use supports the use storage access keys for PolyBase access
+    
+    : Not 
+        ->  "create aa scoped Credential with client id and OAuth 2.0 token endpoint"
+            -> you can use this option to connect to ADL Gen2, but it requires azure AD Service principle
+    
+        -> "BLOB_STORAGE" type for external data source
+            -> this type is using when executing bulk operations with on-premises SQL Server or Azure SQL Database.
+
+
+# Import Data into SQL DWH from Azure Storge Blob container
+    : Extenal Data Source with HADOOP type.
+    : We must use TYPE=HADOOP, when our data source is ADL or Storage Blob container
+        ->      TYPE = HADOOP
+                LOCATION ='wasbs://xxx@sampl.blob.core.windows.net' --> Blob Storage Endpoint, ADL Gen2 has different Endpoint structure.
+    : Not 
+        -> "BLOB_STORAGE" doesn't represent Azure Blob Storag.
+            -> it simply designates the data source as one that will be used with BULK IMPORT or OPENROWSET
+            -> it can't be used with external data sources such as Blob storage 
+            -> Extenal data source : is one that isn't located in Azure SQL Database.
+
+
+# Azure SQL Database, Monitor performance by capturing a history of query plan changes over time.
+    : ALTER DATABASE XXX SET QUERY_STORE = ON (OPERATION_MODE = READ_WRITE) ... it's disabled by default
+    : Not
+        -> SQL Server profiler
+            -> traces SQL-related events, such as query executions and logins
+            
