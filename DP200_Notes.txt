@@ -450,3 +450,134 @@ requirements :
         -> SQL Server profiler
             -> traces SQL-related events, such as query executions and logins
             
+
+# Choose the right integration and automation services in Azure
+    : Microsoft Flow
+    : Azure Logic Apps
+    : Azure Functions
+    : Azure App Service WebJobs
+
+
+# Access Stroge Blob from Databricks using KeyVault
+    # Databricks notebook source
+    dbutils.fs.mount(
+    source = "wasbs://mycontainer@brciksstore.blob.core.windows.net",
+    mount_point  = "/mnt/blobstoremnt",
+    extra_configs  = {"fs.azure.account.key.brciksstore.blob.core.windows.net":dbutils.secrets.get(scope = "SecretScopeBlob", key = "dbkStorageKey")})
+
+
+
+# Implement Azure Databricks with a Cosmos DB endpoint
+
+
+
+# Azure Monitor
+    : metrics
+        -> are numerical values that describe some aspect of a system at a particular point in tim
+        -> tell you how the resource is performing and the resources that it's consuming.
+
+        -> Numerical values only ***
+        -> Collected at regular intervals ***
+        -> View in Azure portal => Metrics Explorer
+
+    : Logs
+        -> contain different kinds of data organized into records with different sets of properties for each type. 
+        -> Telemetry such as events and traces are stored as logs in addition to performance data so that it can all be combined for analysis
+
+        -> Text or numeric data ***
+        -> May be collected sporadically as events trigger a record to be created.
+        -> View in Azure portal => Log Analytics
+
+        :  Log Analytics
+            -> to queries the logs
+
+    : Collect monitoring data
+        : Different sources of data for Azure Monitor will write to either a 
+            -> Log Analytics workspace (Logs) 
+            or 
+            -> the Azure Monitor metrics database (Metrics) 
+            or 
+            -> both
+
+    : diagnostics
+        -> This will collect telemetry for the internal operation of the resource.
+
+    : Monitoring solutions
+
+        : Application Insights 
+            -> monitors the availability, performance, and usage of your web applications whether they're hosted in the cloud or on-premises.
+
+        : Azure Monitor for containers
+        : Azure Monitor for VMs
+    
+    : Alerts in Azure Monitor
+        -> Alert rules in Azure Monitor use action groups
+
+# Storage metrics in Azure Monitor
+    : metrics
+
+        : Capacity metrics
+            : Account Level
+                -> UsedCapacity
+            : Service Level
+                : Blob storage
+                    -> BlobCapacity
+                    -> BlobCount
+                    -> ContainerCount
+                    -> IndexCapacity (ADL Gen2)
+                : Table storage
+                    -> TableCapacity
+                    ->
+                    ->
+                : Queue storage
+                    -> 
+                    -> 
+                    -> 
+                : File storage
+
+        : Transaction metrics [available at both account and service level]
+            -> Transactions
+            -> Ingress
+            -> Egress
+            -> SuccessServerLatency
+            -> SuccessE2ELatency
+            -> Availability
+    
+    : Metrics dimensions
+        -> BlobType
+        -> BlobTier
+        -> GeoType
+        -> ResponseType
+        -> ApiName
+        -> Authentication
+
+
+
+# Understanding block blobs, append blobs, and page blobs
+    : Type 
+        -> Block
+        -> appeand
+        -> page
+    : Blob lease 
+        -> lease id or its blocks
+
+
+
+# Streaming Unit (SU)
+    : Streaming Units (SUs) represents the computing resources that are allocated to execute a Stream Analytics job. 
+    : The higher the number of SUs, the more CPU and memory resources are allocated for your job
+
+    : To achieve low latency stream processing, Azure Stream Analytics jobs perform all processing in memory
+
+    : SU % utilization metric
+        -> which ranges from 0% to 100%
+        -> describes the memory consumption of your workload.
+
+        -> For a streaming job with minimal footprint, this metric is usually between 10% to 20%. 
+        -> If SU% utilization is low and input events get backlogged, your workload likely requires more compute resources, which requires you to increase the number of SUs. 
+        -> It’s best to keep the SU metric below 80% to account for occasional spikes.
+        -> Microsoft recommends setting an alert on 80% SU Utilization metric to prevent resource exhaustion
+
+        -> Increasing number of streaming units for a job might not reduce SU% Utilization if your query is not fully parallel.
+
+        ->  PARTITION BY
