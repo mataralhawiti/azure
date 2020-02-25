@@ -51,8 +51,26 @@ Credential key -> Azure AD
     We should use Always Encrypted with a deterministic type, which will generate same values
 
 
-# 
-    Dynamic Data Masking (DDM) with (random, partial, or other functions) is used for limit data exposure NOT Data Encryption
+# Dynamic Data Masking (DDM) :
+    : with (random, partial, or other functions) is used for limit data exposure NOT Data Encryption
+        -> Azure SQL : can be done via portal
+        -> DWH : only powershell or API
+
+    : Dynamic data masking policy
+        -> SQL users excluded from masking 
+        -> Masking rules
+        -> Masking functions 
+            -> Default	: Full masking according to the data types of the designated fields
+                ADD MASKED WITH (FUNCTION = 'default()')
+            -> Email: Masking method that exposes the first letter of an email address and the constant suffix ".com"
+            -> Random : A random masking function for use on any numeric type to mask the original value with a random value within a specified range.
+            -> Custom String (partial): Masking method that exposes the first and last letters and adds a custom padding string in the middle. prefix,[padding],suffix
+                definition syntax: 
+                    FirstName varchar(100) MASKED WITH (FUNCTION = 'partial(prefix,[padding],suffix)')
+                alter syntax: 
+                    ALTER COLUMN [Phone Number] ADD MASKED WITH (FUNCTION = 'partial(1,"XXXXXXX",0)')
+                    ALTER COLUMN [Phone Number] ADD MASKED WITH (FUNCTION = 'partial(5,"XXXXXXX",0)')
+                    ALTER COLUMN [Social Security Number] ADD MASKED WITH (FUNCTION = 'partial(0,"XXX-XX-",4)')
 
 
 # Azure Stream Anyltics ASA
@@ -124,6 +142,42 @@ requirements :
     : External Data Source
     : External File Formate
     : External Table
+
+
+# DW resource classes (resources and concurrency)
+    : Smaller resource classes reduce the maximum memory per query, but increase concurrency.
+    : Larger resource classes increase the maximum memory per query, but reduce concurrency.
+
+    : Resource classes use [concurrency slots] to measure resource consumption
+
+    : Type :
+        -> Static resources classes ==> for increased concurrency on a data set size that is fixed.
+                                    ==> allocate same amount of memory regardless of the current performance level
+                                    ==> staticrc10, staticrc20, staticrc30, staticrc40, staticrc50, staticrc60, staticrc70, staticrc80
+
+        -> Dynamic resource classes ==> for data sets that are growing in size and need increased performance as the service level is scaled up.
+                                    ==> allocate a variable amount of memory depending on the current service level
+                                    ==> smallrc, mediumrc, largerc, xlargerc
+                                    
+    : By default, each user is a member of the dynamic resource class [smallrc]
+
+    : Concurrency slots
+        -> Concurrency slots are a convenient way to track the resources available for query execution. 
+        -> They are like tickets that you purchase to reserve seats at a concert because seating is limited. 
+        -> The total number of concurrency slots per data warehouse is determined by the service level
+        -> Example :
+            : If each query requires 10 concurrency slots and there are 40 concurrency slots, then only 4 queries can run concurrently.
+    
+    :Resource class precedence
+        : Dynamic resource classes take precedence over static resource classes. 
+            -> For example : if a user is a member of both mediumrc(dynamic) and staticrc80 (static), queries run with mediumrc.
+        : Larger resource classes take precedence over smaller resource classes.
+            -> For example, if a user is a member of mediumrc and largerc, queries run with largerc. Likewise, if a user is a member of both staticrc20 and statirc80, queries run with staticrc80 resource allocations.
+
+    : recommondations
+        -> Choose a dynamic resource class when queries are complex, but don't need high concurrency
+        -> Choose a static resource class when resource expectations vary throughout the day
+
 
 
 # HDInsight Monitoring 
@@ -459,6 +513,9 @@ requirements :
 
 
 # Access Stroge Blob from Databricks using KeyVault
+    : Secret Scopes
+        -> Azure Key Vault-backed scopes
+        -> Databricks-backed
     # Databricks notebook source
     dbutils.fs.mount(
     source = "wasbs://mycontainer@brciksstore.blob.core.windows.net",
@@ -581,3 +638,43 @@ requirements :
         -> Increasing number of streaming units for a job might not reduce SU% Utilization if your query is not fully parallel.
 
         ->  PARTITION BY
+
+
+# SQL Server Encryption 
+    : Encryption Mechanisms
+        -> Transact-SQL functions
+        -> Asymmetric keys
+        -> Symmetric keys
+        -> Certificates
+        -> Transparent Data Encryption
+
+    : Transparent Data Encryption (TDE)
+        === use ===> symmetric key called the Database Encryption Key (DEK)
+                    === protected by ===> Data encryption protector (TDE protector)
+                                        === either  === > service-managed certificate in the master database of the server 
+                                                    === > or  
+                                                    ===> asymmetric key protected by an EKM module or Azure Key Vault
+
+    : Always Encrypted
+        ===> Column Encryption keys (CEK) : to encrypt data in the database, and they're stored in the database in the encrypted form
+        ===> Column Master keys (CMK) :  to encrypt encryption keys, are stored in an external key store
+
+        : supports two types of encryption: 
+            -> randomized encryption
+                : always generates the same encrypted value for any given plain text value. 
+                : Using deterministic encryption allows point lookups, equality joins, grouping and indexing on encrypted columns.
+                : it may also allow unauthorized users to guess information about encrypted values by examining patterns in the encrypted column
+
+            -> deterministic encryption.
+                : uses a method that encrypts data in a less predictable manner
+                : Randomized encryption is more secure, but prevents searching, grouping, indexing, and joining on encrypted columns.
+
+
+
+
+
+    : TDE is the recommended choice for encryption at rest, and we recommend TLS for protecting data in-transit
+    : Recommendation :
+        ==> TDE to encrypt the entire database at rest
+            ==> TLS to protect all traffic to the database.
+                ==> Always Encrypted to protect highly sensitive data from high-privilege users and malware.
