@@ -158,7 +158,7 @@ requirements :
         -> Dynamic resource classes ==> for data sets that are growing in size and need increased performance as the service level is scaled up.
                                     ==> allocate a variable amount of memory depending on the current service level
                                     ==> smallrc, mediumrc, largerc, xlargerc
-                                    
+
     : By default, each user is a member of the dynamic resource class [smallrc]
 
     : Concurrency slots
@@ -204,14 +204,29 @@ requirements :
     : MongoDB API -> No SQL-like queries
 
 
-# CosmosDB Strong Consistency Level
-    : Employee A, B, C 
-    : Employee A, changed column "Status" from "Pending" to "Closed"
-    : No commi
+# CosmosDB Consistency Level
+    : Scenario as :
+        : Employee A, B, C 
+        : Employee A, changed column "Status" from "Pending" to "Closed"
+        : Strong Consistency Level
 
-    : what's all three Employee can read before it's committed and before Synchr occurs?
-        All Employee will read "Pending" even Employee A until the item is committed and Synced
+        : what's all three Employee can read before it's [!! committed !!] and before [!! Synchr !!] occurs?
+            All Employee will read "Pending" even Employee A until the item is committed and Synced
+
     
+    : Scenario as :
+        : Employee A, B, C 
+        : Employee A, changed column "Status" from "Pending" to "Closed"
+        : Session Consistency Level
+
+        : what's all three Employee can read before data is replicated [!! Synch !!] occurs?
+            Employee A -> "Closed"
+            Employee B, C -> "Pending"
+
+        : With Session Consistency 
+            ==> same user is guaranteed to read the same value within a single Session, Even before [replication occurs] !!!! 
+            ==> the use writes the data can read the same value
+            ==> users outside the seesion (Employee B&C) won't read the data because the data has not replicated yet
 
 # Azure SQL DW Gen2 Cashing 
     : Scenario as :wokring data set doesn't fit compelelty into the cache. 
