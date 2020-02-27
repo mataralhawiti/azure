@@ -123,7 +123,7 @@ requirements :
     : it integrates with SQL Database Advisor to provide recommondations for creating and dropping indexes
 
 
-# 
+# IoT solution
     1. create blob container
     2. create Azure Stream Anyltics job with edge hosting
     3. configure azure blob storage container as save location for [job definition]
@@ -238,7 +238,17 @@ requirements :
 
 
 
-# CosmosDB Consistency Level
+# CosmosDB Consistency Level example
+    : Scenario as :
+        : Employee A, B, C 
+        : Employee A, changed column "Status" from "Pending" to "Closed"
+        : Strong Consistency Level
+
+        : what's all three Employee can read before it's [!! committed !!] and before [!! Synchr !!] occurs?
+            All Employee will read "Pending" even Employee A until the item is committed and Synced
+
+
+# CosmosDB Consistency Level 
     : Scenario as :
         : Employee A, B, C 
         : Employee A, changed column "Status" from "Pending" to "Closed"
@@ -261,6 +271,39 @@ requirements :
             ==> same user is guaranteed to read the same value within a single Session, Even before [replication occurs] !!!! 
             ==> the use writes the data can read the same value
             ==> users outside the seesion (Employee B&C) won't read the data because the data has not replicated yet
+
+    
+    : Scenario as :
+        : data store for multi region application, choose Consistency levle with lowest latency between app and CosmosDB
+
+        -> Eventual Consistency
+            -> as little latency as possbile, without guarantee of reading operations using the latest committed write. 
+
+
+
+# CosmosDB Request Unit (RU):
+    : Scenario as
+        : Throughput provisoned in container level, and -> under-provisioned Request Unit
+
+    : Mertics
+        -> [Total Request Unites by Container]
+            -> it indicates how many RU were consumed.
+
+    
+    : Not 
+        -> [Request count by HTTP status code]
+            -> 429 http status code => indicates the container exceeded the configured throughput.
+
+        -> [Max consumed RU per second per partioin]
+            -> use this mertic to identify which partioin is consuming the most RU provisoned for given container or DB
+
+        -> [provisioned throughput by container]
+            -> it's used to monitor how much throughput provisioned by container. HOWEVER, you can't determine how much throughout is consumed.
+
+
+
+
+
 
 # Azure SQL DW Gen2 Cashing 
     : Scenario as :wokring data set doesn't fit compelelty into the cache. 
@@ -684,6 +727,8 @@ requirements :
         -> It’s best to keep the SU metric below 80% to account for occasional spikes.
         -> Microsoft recommends setting an alert on 80% SU Utilization metric to prevent resource exhaustion
 
+        -> 80% utlization probaly means job will fail
+        -> use it with MAx Aggregation to get used capacity
         -> Increasing number of streaming units for a job might not reduce SU% Utilization if your query is not fully parallel.
 
         ->  PARTITION BY
@@ -727,3 +772,52 @@ requirements :
         ==> TDE to encrypt the entire database at rest
             ==> TLS to protect all traffic to the database.
                 ==> Always Encrypted to protect highly sensitive data from high-privilege users and malware.
+
+
+
+# Row-Level Security
+    : query 
+        CREATE SECURITY POLICY SalesFilter  
+        ADD FILTER PREDICATE Security.fn_securitypredicate(SalesRep)
+        ON dbo.Sales  
+        WITH (STATE = ON);  
+    
+    : parts :
+        -> SECURITY POLICY
+        -> FILTER PREDICATE ==> [fn_securitypredicate(SalesRep)]   function name and its input
+        -> ON ==> table name
+
+
+# Re-encrypt Transparent Data Encryption (TDE), using KeyVault, powershell
+    : Assign AAD to Azure SQL
+    : Grant KeyVault Permission to Azure SQL 
+    : Add KeyVault to Azure SQL, and set it as TED protector
+    : Turn on TED 
+
+    :-> if you do this via the portal, you DO NOT Need Step 1 & 2 :
+        you get an AAD identity assgined and relevant Permissions set to Azure SQL via Azure KeyVault access policy automatically.
+
+
+
+# Encrypt Transparent Data Encryption (TDE), using KeyVault, in geo-replicate in 2 regions :
+    : start with secondary region.
+    : On secondary, assgin KeyVault that in the same region
+    : on secondary, assgin TDE protector
+
+    : do the same in primary region 
+
+
+
+# Easily identify queries within DMV in SQL :
+    : use LABLE option
+
+#  Azure Databricks Monitoring
+    : default format for mertics data used by Azure Databricks => Ganglia
+    : supports sending logs to Azure monitor => via 3rd party library
+    : Mertics transfoned to Azure will be stored in : Azure Log Analytics workspace
+
+
+# In-Memeory storage (In-Memeory OLTP) utlization
+    : SELECT xtp_storage_percentage from sys.dm_db_resource_stats 
+    Or
+    : DB > Monitor > mertics blade > in-memory OLTP storage percentage mertic 
