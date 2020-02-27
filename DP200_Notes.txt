@@ -204,6 +204,40 @@ requirements :
     : MongoDB API -> No SQL-like queries
 
 
+# CosmosDB Consistency Level explained
+    : Latency, Availability and Throughput Trade off
+    : we can override per-request Consistency
+
+    : Strong => Bounded-stalenss => Session => Consistent Prefix => Eventual
+    : going from left to right -> low latency, higher availability, better read scalability
+
+    : Strong Consistency 
+        -> once operation is complete, it's guaranteed that it will be to all subsequent requests in db
+        -> we call it perfect Consistency as well
+
+    : Bounded stalenss
+        -> offer [ Consistent Prefix ]
+            -> Consistent Prefix => means replication will always happen in order of those writes. you won't ever see out-of-order records
+        -> it guarantees that you get perfect Consistency (Strong Consistency) outside of a stalenss window, but within that stalenss window you're gonna see only Consistent Prefix guarantees.
+        -> stalenss Window is defined by time interval and number of operations
+
+    : Session Consistency
+        -> guarantees Strong Consistency within the session 
+        -> this way you don't pay for perforamcne plenty of getting globaly strong Consistency
+        -> within that session you'll be able to read your writes, 
+        -> very good throughput and latency
+    
+    : Consistent Prefix
+        -> the only guarantee that you'll never see out-of-order writes or gaps in time 
+
+    : Eventual Consistency
+        -> weakest form of Consistency
+        -> the only guarantee is the the replicas will eventually convverge 
+        -> lowest cost for read out of all other levels
+            -> meaning : the read is always be served out of a single replica , it doesn't need to achive quorum, and it always will have lowest latency because you can read from nearest replica.
+
+
+
 # CosmosDB Consistency Level
     : Scenario as :
         : Employee A, B, C 
