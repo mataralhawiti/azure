@@ -205,7 +205,7 @@ requirements :
 
 
 # CosmosDB Consistency Level explained
-    : Latency, Availability and Throughput Trade off
+    : Latency, Availability, latency and Throughput Trade off
     : we can override per-request Consistency
 
     : Strong => Bounded-stalenss => Session => Consistent Prefix => Eventual
