@@ -423,7 +423,8 @@ requirements :
         -> Hash distribution copies rows across Compute Nodes by using hashing function against column.
         -> Rows with columns that have the same hash value are copied to the same compute Node.
 
-
+    : Note 
+        -> Azure SQL Data Warehouse does not support cross-database queries
 
 # ASA Window functions
     : Scenario
