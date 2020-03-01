@@ -104,7 +104,7 @@ requirements :
             Windows may overlap 
            doesn't check the time duration between events
 
-
+    : use Reference Input for data that never or rarely change
 
 
 # Query Performance Insight
@@ -237,6 +237,7 @@ requirements :
             -> meaning : the read is always be served out of a single replica , it doesn't need to achive quorum, and it always will have lowest latency because you can read from nearest replica.
 
 
+    : We can override/set consistency level in Connection time or During Request
 
 # CosmosDB Consistency Level example
     : Scenario as :
@@ -435,7 +436,26 @@ requirements :
         -> Sliding Window, it produces output only when event occurs
         -> Session Window, it groups events that arrive at similair times. it filters out periods when there is no data.
 
+    : Functions comparion
+        -> Tumbling :
+            -> None overlapping
+            -> events belong to only one window
+            -> fixed-szie time, and continuse
 
+        -> Hopping :
+            -> overlapping
+            -> fixed-szie time, and continuse
+            -> Hopsize : how long a window will overlap with previous Window --> this could result in events belong to one or more than one window
+
+        -> Sliding :
+            -> overlapping
+            -> fixed-szie time, and continuse
+            -> it's similair to setting hopping Window function with a hop size equal to zero, the only Exception here is Sliding Function only produce an output when an event occurs
+
+        -> Session :
+            -> Group events that arraive at simnilar time.
+            -> events can belong to more than one window
+            -> have a variable length
 
 
 # Run Analytics on data to automatically generate bar charts, and it has to be Scheduled
@@ -555,8 +575,7 @@ requirements :
         -> Owner (Kerry) - [First digit] : 6, which means READ + WRITE (6)
         -> Owner Group (Finance, which includes David) - [Second digit] : 4, which means READ only () 
         -> Everyone - (Alan) [third digit]: 0, which means No access
-
-
+    : hierarchical Namespace
 
 # Configure PolyBase to load data from ADL Gen2 to Azure DW, and shoudl NOT use AZure AD service principle.
     1. create aa scoped Credential with the azure storage access key
@@ -821,3 +840,113 @@ requirements :
     : SELECT xtp_storage_percentage from sys.dm_db_resource_stats 
     Or
     : DB > Monitor > mertics blade > in-memory OLTP storage percentage mertic 
+
+
+# Azure Event Hubs
+    : allows you to capture, retain ,and replay telemetry data.
+    : it accepts data stream over HTTP and AMQP
+
+# Azure IoT Hub
+    : it accepts data stream over HTTP, AMQP, MQTT
+
+# Azure Event Gird
+    : publish-subscribe platform for events
+    : Events publisher, sends events to Event Grid. And Subscriber subsbcribe to the events they want to handle.
+# Azure Relay
+    : Allows client apps to connect to services hosted on a private networkr over internet
+    : allows client apps to access on-premise services through Azure
+    : it (Azure Functions as well) doesn't accepts messages over AMQP
+
+
+# Dynamic Data Maskig (DDM) vs Row Level Security (RLS)
+    : DDM -> allows limiting the exposure of specific fields
+    : RLS -> Hide the whole row not just fields/columns
+
+# DWH re-partioin
+    : Disable the columnstore index 
+    : user ALTER TABLE statement with SPLIT clause
+    : Rebuild the columnstore index
+
+# Azure IT Service Management Connector (ITSMC)
+
+# Azure Data Factory pipeline Monitoring 
+    : To store ADF pipeline run history more than the default (45) we can send logs to Azure Monitor by configuring Diagnostics logs to send data to Blob Storag
+
+# give an existing user Admin rights to DB
+    : ALTER ROLE db_owner ADD MEMEBER matar
+    : Not
+        - ALTER USER 
+
+# TDE with customer-manged encryption key
+    -> Assuming : Azure AD identity is already assgined in Azure SQL DB Server
+    1. Create Azure KeyVault and generate new key
+    2. Grant KeyVault Permissions (getm weapKey, UnwrapKey) to that Azure AD identity assgined to Azure SQL Server
+    3. Add KeyVault Key to Azure SQL Server
+    4. Set TDE protector to use the KeyVault key
+    5. Enable encryption in DB
+
+    : Not
+        -> Create MAster key in master DB,  create server certificate usin master key, create encryption ket from that certificate
+            => this setup for configuring TDE for  On-premise SQL 
+    : By Default, TDE is enabled in new provisoned Azure SQL using services-manged encryption key
+
+
+# Azure Data Factory
+    : Scenario
+        connect to on-premise db and move data periodically to Azure SQL DB, the pipeline is allowed to run at specific, fixed-size time interval
+    : Component -> Linked Service
+    : Execution -> Tumbling Window in Pipeline execution trigger 
+
+# Azure CosmosDB CLI 
+    : az [cosmosdb] => to create account
+    : az [cosmosdb creat] => to creat DB
+    : --kind GlobalDocumentDB
+    : --default-consistency-level Strong
+    : --enable-multiple-write-locations => provision CosmosDB in multi-regions with multiple write regions
+    : --enable-automatic-failover => if you want to enable automatic failover in case of Disatir
+
+# Watermark approach in Azure Data Factory
+    1. lookup the value from Watermark table
+    2. lookup the value from customer table
+    3. copy delta using Watermark
+    4. execute SP to update Watermark table
+
+# Log API calls to ADL Gen2
+    : Scenario
+        logs should be stored in BLOB Storag
+        only include operations about API calls 
+    : From Diagnostics Setting blad config 
+        -> LOG section enable ==> Requests ==> capture every API request made to the account
+        -> LOG section enable ==> Audit ==> to capture breakdown of the operation made to APIs
+        
+# SQL Secuirty policy Predicate 
+    CREATE SECURITY POLICY SalesFilter_ext
+    ADD FILTER PREDICATE Security.fn_securitypredicate(SalesRep)
+    ON dbo.Sales_ext  
+    WITH (STATE = ON);
+
+# Configure number of DTU for multiple DBs in Elastic pool
+    : determine number of total DTUs that are used by all DBs combined 
+
+# Access ADL Gen2 from Azure Databricks
+    1. Create Databricks secret scope in the workspace
+    2. Add ADL Gen2 account key and a service principle seconds to that scope
+    3. Configure the storage account key wwith spark.conf.set().
+        => to ensure that storage account reads the key from secret scope with dbutils.secrets.get() method
+    4. mount a filesystem using a service principle
+        => to securly mount the filesystem using service principle store in the secret scope.
+
+
+    : Not 
+        -> spark.sparkContext.hadoopConfigration()
+            => you can use this to read directly from ADL Gen2, HOWEVER; storage account key will be exposed to all users who access the cluster
+
+        -> Read from storage account using RDD API
+            => this will requires you to use spark.sparkContext.hadoopConfigration()
+
+        -> You can't use SAS with ADL Gen2
+
+# Azure messaging services
+    : Event Grid
+    : Event Hubs
+    : Service Bus
