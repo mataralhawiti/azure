@@ -972,7 +972,7 @@ requirements :
         -> it allows you to work with JSON, tree-shape data instead of rows & columns
 
 
-# Azure Data Factory 
+# Azure Data Factory - migrate data from an on-premises Hadoop cluster to Azure Storage
     : Scenario
         huge data stored on-premise in Hadoop cluster.
         you want to copy data to Azure Storage
@@ -983,7 +983,7 @@ requirements :
     : Use Azure Data Factory 
         => in Native Integratio Runtime (IR) mode
             => with ADF self-hosted IR machine installed on the Azure Vnet
-        -> This approach supports data transfer via Express Route and use ADF IR as as engine to copy the data.
+        -> This approach supports data transfer via Express Route and use [ ADF IR as as engine to copy the data ]
 
 
     : above solution will be different if we were allowed to use public internet
@@ -993,6 +993,47 @@ requirements :
 
     : Source 
         -> https://docs.microsoft.com/en-us/azure/data-factory/data-migration-guidance-hdfs-azure-storage
+
+    : Details 
+        Data Factory DistCp mode (recommended): 
+            -> you can use DistCp (distributed copy) to copy files as-is to Azure Blob storage (including staged copy) or Azure Data Lake Store Gen2. 
+            -> Use Data Factory integrated with DistCp to take advantage of an existing powerful cluster to achieve the best copy throughput. 
+            -> Depending on your Data Factory configuration, copy activity automatically constructs a DistCp command, submits the data to your Hadoop cluster, and then monitors the copy status.
+        
+            => We recommend Data Factory DistCp mode for migrating data from an on-premises Hadoop cluster to Azure.
+            => DistCp : doesn't support Express Route private peering with Azure Storage Vnet endpoint
+    
+        Data Factory native integration runtime mode: 
+            -> in an Azure VNet environment, the DistCp tool doesn't support Azure ExpressRoute private peering with an Azure Storage virtual network endpoint. 
+            -> In addition, in some cases, you don't want to use your existing Hadoop cluster as an engine for migrating data so you don't put heavy loads on your cluster, 
+            -> Instead, you can use the native capability of the Data Factory integration runtime as the engine that copies data from on-premises HDFS to Azure.
+
+
+    : Solution architecture (https://docs.microsoft.com/en-us/azure/data-factory/data-migration-guidance-hdfs-azure-storage)
+        -> architecture (A) : migrating data over the public internet (HTTPS or ExpressRoute MS Peering)
+
+            => using Data Factory DistCp mode in a public network environment
+            => you must install the Data Factory self-hosted integration runtime on a Windows machine behind a corporate firewall to submit the DistCp command to your Hadoop cluster and to monitor the copy status
+            => Because the machine isn't the engine that will move data (for control purpose only), the capacity of the machine doesn't affect the throughput of data movement.
+
+        -> architecture (B) :  migrating data over a private link
+
+            => data is migrated over a private peering link via Azure ExpressRoute. Data never traverses over the public internet.
+            => The DistCp tool doesn't support ExpressRoute private peering with an Azure Storage virtual network endpoint. 
+            => We recommend that you use Data Factory's native capability via the integration runtime to migrate the data.
+            => you must install the Data Factory self-hosted integration runtime on a Windows VM in your Azure virtual network ***
+
+
+
+    : The Integration Runtime (IR) 
+        -> is the compute infrastructure used by Azure Data Factory to provide data integration capabilities across different network environments
+        -> It is hosted in Azure environment and supports connecting to resources in public network environment with public accessible endpoints.
+        -> it's called ( Default Azure IR )
+
+    : Self-hosted integration runtime 
+        -> can run copy activities between a cloud data store and a data store in a private network. 
+        -> It also can dispatch transform activities against compute resources in an on-premises network or an Azure virtual network. 
+        -> The installation of a self-hosted integration runtime needs an on-premises machine or a virtual machine inside a private network.
 
 
 # Databricks Access token
@@ -1012,6 +1053,10 @@ requirements :
         3. Install self-hosted IR the on-premise SSIS
         4. Set up the self-hosted IR as a proxy for your Azure-SSIS IR 
         5. Regierser the self-host IR with Authentication key 
+
+    : With this feature 
+        -> you can access data on-premises without having to join your Azure-SSIS IR to a virtual network. 
+        -> The feature is useful when your corporate network has a configuration too complex or a policy too restrictive for you to inject your Azure-SSIS IR into it.
 
 
 # Optimal Performance for ASA Job :
@@ -1046,8 +1091,6 @@ requirements :
     : Entire DB encrypted at rest => TED 
     : Data must be encrypted in trasnit between client and Azure => Alwyas encrypted
 
-# 24, 25, 29
-
 # copy data from Azure Databricks to ADL Gen2
     : dbutils.fs.cp("file:///tmp/ss.csv", "abfss://xxx@sample.dfs.core.windows.net/")
 
@@ -1057,3 +1100,74 @@ requirements :
 
 # ASA Job stop unexpectedly 
     : All adminstrative operations single logic Log 
+
+
+# Azure Blob storage lifecycle
+
+    {
+            "rules": [
+            {
+            "name": "rule1",
+            "enabled": true,
+            "type": "Lifecycle",
+            "definition": {...}
+            },
+            {
+            "name": "rule2",
+            "type": "Lifecycle",
+            "definition": {...}
+            }
+        ]
+    }
+
+    
+    : A policy is a collection of rules
+        -> rules[] : An array of rule objects
+        baseBlob
+    : 
+
+
+    : Sample Rule 
+
+        {
+        "rules": [
+            {
+            "name": "ruleFoo",
+            "enabled": true,
+            "type": "Lifecycle",
+            "definition": {
+                "filters": {
+                "blobTypes": [ "blockBlob" ],
+                "prefixMatch": [ "container1/foo" ]
+                },
+                "actions": {
+                "baseBlob": {
+                    "tierToCool": { "daysAfterModificationGreaterThan": 30 },
+                    "tierToArchive": { "daysAfterModificationGreaterThan": 90 },
+                    "delete": { "daysAfterModificationGreaterThan": 2555 }
+                },
+                "snapshot": {
+                    "delete": { "daysAfterCreationGreaterThan": 90 }
+                }
+                }
+            }
+            }
+        ]
+        }
+
+    : baseBlob vs Snapshot 
+        "actions": {
+            "baseBlob": {
+
+        "actions": {
+          "snapshot": {
+
+
+    : Rule filters
+        -> blobTypes
+        -> prefixMatch
+    
+    : Rule actions
+        -> tierToCool
+        -> tierToArchive
+        -> delete
