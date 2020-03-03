@@ -139,9 +139,13 @@ requirements :
 
 
 # PolyBase in DWH
+    : create a database-scoped credential => that secures the credentials to the blob storage
     : External Data Source
     : External File Formate
     : External Table
+
+    : it's enabled by default in Azure DWH
+    : you need to enable it for on-premise SQL sp_configure command
 
 
 # DW resource classes (resources and concurrency)
@@ -579,11 +583,11 @@ requirements :
     : hierarchical Namespace
 
 # Configure PolyBase to load data from ADL Gen2 to Azure DW, and shoudl NOT use AZure AD service principle.
-    1. create aa scoped Credential with the azure storage access key
+    1. create a database-scoped credential with the azure storage access key
     2. Create an external data source with HADOOP type.
     3. Create an external file format
     4. create an external table.
-    5. load the data inot the table
+    5. load the data inot destination table using (CREATE TABLE *** WITH () AS SELECT * FROM external;)
 
     : ADL Gen2 use supports the use storage access keys for PolyBase access
     
@@ -594,6 +598,11 @@ requirements :
         -> "BLOB_STORAGE" type for external data source
             -> this type is using when executing bulk operations with on-premises SQL Server or Azure SQL Database.
 
+
+
+# Loading data using Polybase vs. Databricks
+    : In Databricks, we need temp directory after proccessing data before moving it to SQL DWH
+    : In Polybase : No Need
 
 # Import Data into SQL DWH from Azure Storge Blob container
     : Extenal Data Source with HADOOP type.
@@ -951,3 +960,100 @@ requirements :
     : Event Grid
     : Event Hubs
     : Service Bus
+
+
+# Scenario : build e-commerce .. CosmosDB Table API vs. Azure Table Storag, the solution must allow .NET requests
+    : yes both meet the requirements
+        -> Azure Table Storag => uses NoSQL, which allow you to store ( keys and attributes ) in schemaless store
+        -> this is similar to CosmosDB with Table API
+        -> Each Entity (row), can store a varyinb number of attributes (Fields)
+
+    : SQL API is correct too.
+        -> it allows you to work with JSON, tree-shape data instead of rows & columns
+
+
+# Azure Data Factory 
+    : Scenario
+        huge data stored on-premise in Hadoop cluster.
+        you want to copy data to Azure Storage
+        On-premise datacenter is connnected to Azure VNet with Express Route peering.
+        Azure Storag endpoint is accessible from same VNet 
+        You aren't allowed to transfer data over public internet
+
+    : Use Azure Data Factory 
+        => in Native Integratio Runtime (IR) mode
+            => with ADF self-hosted IR machine installed on the Azure Vnet
+        -> This approach supports data transfer via Express Route and use ADF IR as as engine to copy the data.
+
+
+    : above solution will be different if we were allowed to use public internet
+        -> we can use ADF in Distributed copy (DistCp) mode 
+        -> in this case, n install ADF IR on our local machine, not into VM in Azure VNet 
+        -> DistCp : doesn't support Express Route private peering with Azure Storage Vnet endpoint
+
+    : Source 
+        -> https://docs.microsoft.com/en-us/azure/data-factory/data-migration-guidance-hdfs-azure-storage
+
+
+# Databricks Access token
+    : Allows external application to access Databricks
+
+# on-premise SSIS to Azure Data Factory
+    : Scenario
+        ERP on SQL Server on-premise. Another, SQL Server configured with SSIS packages to extract data from ERP to on-premise SQL DWH.
+        you need to prepare SSIS process to be integrated with Azure Data Factory for future migration to the cloud.
+
+        You need to configure self-hosted integration runtime (IR) as proxy for Azure-SSIS IR in ADF
+        You already created Azure Blob storage for the integration
+
+    : actions to perform 
+        1. Create a linked serivce in ADF for Storag account 
+        2. Create Azure-SSIS IR in ADF
+        3. Install self-hosted IR the on-premise SSIS
+        4. Set up the self-hosted IR as a proxy for your Azure-SSIS IR 
+        5. Regierser the self-host IR with Authentication key 
+
+
+# Optimal Performance for ASA Job :
+    : you should start with 6 SUs for queries don't use PARTITION BY. it's a best practice.
+    : you shuld keep SU mertics below 80 %. it's a best practice.
+    : you should allocate more SUs than you need. it's a best practice.
+
+
+# powershell, Azure Monitor, Log Analytics !
+
+# SQL Server Profiler Trace 
+    : to catch Stored Procedure that being executed
+
+# Synch Azure SQL DB to newly created Azure SQL DB in another region. Note that DB is being used by distributed app with Read/Write Permission
+    : Azure SQL Data Sync 
+        -> allows sync data across multiple Azure SQL, and on-premise as well, bi-directionally
+    
+    : Not 
+        -> Azure SQL geo-replication
+            : it's a disaster recovey solution.
+            : the sysnc direction is only from Master to the replica DB 
+            : you only have read access to the replica 
+
+
+# Azure Databricks with Azure Event Hubs 
+    : .setEventHubName("MyEHName)
+    : var eventhubs =spark.readStream.format("eventhubs").options(evezzzz).load()
+
+
+# TED and Always Encrypted
+    : only specific columns in 10 tables must be encrypted => Alwyas encrypted
+    : Entire DB encrypted at rest => TED 
+    : Data must be encrypted in trasnit between client and Azure => Alwyas encrypted
+
+# 24, 25, 29
+
+# copy data from Azure Databricks to ADL Gen2
+    : dbutils.fs.cp("file:///tmp/ss.csv", "abfss://xxx@sample.dfs.core.windows.net/")
+
+# SQL performance issues
+    : use Columnstore Index , good for Aggregation queries 
+    : Memory-optimized table, store all data & schema in memeory 
+
+# ASA Job stop unexpectedly 
+    : All adminstrative operations single logic Log 
