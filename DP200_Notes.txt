@@ -72,7 +72,7 @@ Credential key -> Azure AD
                     ALTER COLUMN [Phone Number] ADD MASKED WITH (FUNCTION = 'partial(5,"XXXXXXX",0)')
                     ALTER COLUMN [Social Security Number] ADD MASKED WITH (FUNCTION = 'partial(0,"XXX-XX-",4)')
 
-
+            -> Credit Card : XXXX-XXXX-XXXX-1234
 # Azure Stream Anyltics ASA
 requirements :
     group events per line/product within specific time interval
@@ -1171,3 +1171,206 @@ requirements :
         -> tierToCool
         -> tierToArchive
         -> delete
+
+# Linked Service vs. Runtime (ex: self-hosted)
+
+
+
+
+
+*********************************
+
+You are developing a solution to visualize multiple terabytes of geospatial data.
+The solution has the following requirements:
+-> Data must be encrypted.
+-> Data must be accessible by multiple resources on Microsoft Azure.
+
+    1. Create ADL with Azure KeyVault managed encryption keys
+    2. select and configure an encryption key storage container 
+    3. add an access policy for ADL account to the key storage container 
+    4. enable encryption on ADL using the portal 
+
+
+---
+
+You are developing a data engineering solution for a company. The solution will store a large set of key-value pair data by using Microsoft Azure Cosmos DB.
+The solution has the following requirements:
+-> Data must be partitioned into multiple containers.
+-> Data containers must be configured separately.
+-> Data must be accessible from applications hosted around the world.
+-> The solution must minimize latency.
+
+    1. Provision an Azure Cosmos DB account with the Azure Table API. Enable multi-region writes.
+
+
+---
+
+affect your costs when sizing the Azure SQL Database elastic pools
+
+B. number of databases
+C. eDTUs consumption
+
+---
+
+
+Copy data from on-premises SQL Server instance to Azure Blob storage.
+
+    Step 1: Deploy an Azure Data Factory
+        You need to create a data factory and start the Data Factory UI to create a pipeline in the data factory.
+    Step 2: From the on-premises network, install and configure a self-hosted runtime.
+        To use copy data from a SQL Server database that isn't publicly accessible, you need to set up a self-hosted integration runtime.
+    Step 3: Configure a linked service to connect to the SQL Server instance.
+
+
+
+--- 
+
+A company runs Microsoft SQL Server in an on-premises virtual machine (VM).
+You must migrate the database to Azure SQL Database. You synchronize users from Active Directory to Azure Active Directory (Azure AD).
+You need to configure Azure SQL Database to use an Azure AD user as administrator.
+What should you configure?
+
+A. For each Azure SQL Database, set the Access Control to administrator.
+B. For each Azure SQL Database server, set the Active Directory to administrator.
+    C. For each Azure SQL Database, set the Active Directory administrator role. ********
+D. For each Azure SQL Database server, set the Access Control to administrator.
+
+    There are two administrative accounts act as administrators:
+        1. Server admin
+        2. Active Directory admin
+
+    One Azure Active Directory account, either an individual or security group account, can also be configured as an administrator. 
+    It is optional to configure an Azure AD administrator, but an Azure AD administrator must be configured if you want to use Azure AD accounts to connect to SQL Database.
+
+
+---
+
+You plan to create a dimension table in Azure Data Warehouse that will be less than 1 GB.
+You need to create the table to meet the following requirements:
+-> Provide the fastest query time.
+-> Minimize data movement.
+Which type of table should you use?
+    A. hash distributed
+    B. heap
+    C. replicated **
+
+    Usually common dimension tables or tables that doesnâ€™t distribute evenly are good candidates for round-robin distributed table.
+    Note: Dimension tables or other lookup tables in a schema can usually be stored as round-robin tables. 
+    Usually these tables connect to more than one fact tables and optimizing for one join may not be the best idea. 
+    Also usually dimension tables are smaller which can leave some distributions empty when hash distributed.
+    Round-robin by definition guarantees a uniform data distribution.
+
+--- 
+
+You have an Azure SQL data warehouse.
+Using PolyBase, you create table named [Ext].[Items] to query Parquet files stored in Azure Data Lake Storage Gen2 without importing the data to the data warehouse.
+The external table has three columns.
+You discover that the Parquet files have a fourth column named ItemID.
+Which command should you run to add the ItemID column to the external table?
+
+
+    DROP TABLE
+    CREATE EXTERNAL TABLE XXX
+
+    NOT :
+    ALTER TABLE
+
+    **** Only these Data Definition Language (DDL) statements are allowed on external tables:
+
+        CREATE TABLE and DROP TABLE
+        CREATE STATISTICS and DROP STATISTICS
+        CREATE VIEW and DROP VIEW
+
+---
+
+DWH
+    DELETE PARTIONS CONTAIN OLD DATA 
+
+--
+
+You plan to implement an Azure Cosmos DB database that will write 100,000 JSON every 24 hours. The database will be replicated to three regions. Only one region will be writable.
+You need to select a consistency level for the database to meet the following requirements:
+    -> Guarantee monotonic reads and writes within a session.
+    -> Provide the fastest throughput.
+    -> Provide the lowest latency.
+    Which consistency level should you select?
+
+        Session: 
+            Within a single client session reads are guaranteed to honor the consistent-prefix (assuming a single â€œwriterâ€ session), 
+                monotonic reads, 
+                monotonic writes, 
+                read-your-writes, 
+                and write-follows-reads guarantees. 
+            Clients outside of the session performing writes will see eventual consistency.
+
+--- 
+
+
+You have an Azure Storage account that contains 100 GB of files. The files contain text and numerical values. 75% of the rows contain description data that has an average length of 1.1 MB.
+You plan to copy the data from the storage account to an Azure SQL data warehouse.
+You need to prepare the files to ensure that the data copies quickly.
+Solution: You modify the files to ensure that each row is less than 1 MB.
+    Does this meet the goal? 
+
+    NO
+
+    Instead modify the files to ensure that each row is less than 1 MB.
+
+
+---
+
+
+# CosmosDB Consistency levels and data durability
+You plan to deploy an Azure Cosmos DB database that supports multi-master replication.
+You need to select a consistency level for the database to meet the following requirements:
+-> Provide a recovery point objective (RPO) of less than 15 minutes.
+-> Provide a recovery time objective (RTO) of zero minutes.
+What are three possible consistency levels that you can select? Each correct answer presents a complete solution.
+NOTE: Each correct selection is worth one point.
+    A. Strong
+    B. Bounded Staleness
+    C. Eventual
+    D. Session
+    E. Consistent Prefix
+
+    Answer : C D E
+
+---
+
+# Storage account access tiers
+
+You need to ensure that you can recover any blob data from an Azure Storage account named storage xxxxx up to 30 days after the data is deleted.
+
+    ->  The cool access tier has lower storage costs and higher access costs compared to hot storage. This tier is intended for data that will remain in the cool tier for at least 30 days.
+
+---
+
+
+    Box 1: Yes - the quer joins 2 streams of partioned data
+        You can now use a new extension of Azure Stream Analytics SQL to specify the number of partitions of a stream when reshuffling the data.
+
+        The outcome is a stream that has the same partition scheme. Please see below for an example:
+        WITH    step1 AS (SELECT * FROM [input1] PARTITION BY DeviceID INTO 10), 
+                step2 AS (SELECT * FROM [input2] PARTITION BY DeviceID INTO 10)
+
+        SELECT * INTO [output] 
+        FROM    step1 PARTITION BY DeviceID 
+                UNION 
+                step2 PARTITION BY DeviceID
+        
+        Note: The new extension of Azure Stream Analytics SQL includes a keyword INTO that allows you 
+                to specify the number of partitions for a stream when performing reshuffling using a PARTITION BY statement.
+
+
+    Box 2: Yes -
+        When joining two streams of data explicitly repartitioned, 
+        these streams must have the same partition key and partition count.
+
+    Box 3: Yes - providing 60 SUs will optimizate perforamnce of the quer
+
+        10 partitions x six SUs = 60 SUs is fine.
+
+        Note: Remember, Streaming Unit (SU) count, which is the unit of scale for Azure Stream Analytics, 
+        must be adjusted so the number of physical resources available to the job can fit the partitioned flow. 
+        In general, **** six SUs *** is a good number to assign to each partition. In case there are insufficient resources assigned to the job, 
+        the system will only apply the repartition if it benefits the job.
