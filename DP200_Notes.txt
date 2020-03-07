@@ -1374,3 +1374,335 @@ You need to ensure that you can recover any blob data from an Azure Storage acco
         must be adjusted so the number of physical resources available to the job can fit the partitioned flow. 
         In general, **** six SUs *** is a good number to assign to each partition. In case there are insufficient resources assigned to the job, 
         the system will only apply the repartition if it benefits the job.
+
+
+--
+
+You need to ensure that users in the West US region can read data from a local copy of an Azure Cosmos DB database
+
+    enable the Geo-redundancy, Multi-region Writes, Avialibty Zone
+    e Replicate data globally menu -> add region
+
+
+--
+
+You need to ensure that User1-10543936@ExamUsers.com can manage any databases hosted on an Azure SQL server named SQL10543936 by signing in using his Azure Active Directory (Azure AD) user account.
+    Provision an Azure Active Directory administrator for your managed instance
+    Each Azure SQL server (which hosts a SQL Database or SQL Data Warehouse) starts with a single server administrator account that is the administrator of the entire Azure SQL server. A second SQL Server administrator must be created, that is an Azure AD account. This principal is created as a contained database user in the master database.
+    In SQL Server page, select Active Directory admin.
+    n the Active Directory admin page, select Set admin
+
+-- 
+deployment using DevOps
+    create deployment artifacts caonting an extraced AMR template
+    paramtrize deployment using ARM template paramerters
+    configure azure devops to deploy the deployment artifacts
+
+
+
+    You need to provision the polling data storage account :
+        Account type: StorageV2 -
+        Replication type: RA-GRS ---> why Not GRS ???
+            -> GRS replicates your data to another data center in a secondary region, 
+                but that data is available to be read only if Microsoft initiates a failover from the primary to secondary region.
+
+            -> Read-access geo-redundant storage (RA-GRS) is based on GRS. RA-GRS replicates your data to another data center in a secondary region, 
+                and also provides you with the option to read from the secondary region. 
+                With RA-GRS, you can read from the secondary region regardless of whether Microsoft initiates a failover from the primary to secondary region.
+
+
+--
+
+Overview -
+
+General Overview -
+Litware, Inc, is an international car racing and manufacturing company that has 1,000 employees. Most employees are located in Europe. The company supports racing teams that complete in a worldwide racing series.
+
+Physical Locations -
+Litware has two main locations: a main office in London, England, and a manufacturing plant in Berlin, Germany.
+During each race weekend, 100 engineers set up a remote portable office by using a VPN to connect the datacentre in the London office. The portable office is set up and torn down in approximately 20 different countries each year.
+
+Existing environment -
+
+Race Central -
+During race weekends, Litware uses a primary application named Race Central. Each car has several sensors that send real-time telemetry data to the London datacentre. The data is used for real-time tracking of the cars.
+Race Central also sends batch updates to an application named Mechanical Workflow by using Microsoft SQL Server Integration Services (SSIS).
+The telemetry data is sent to a MongoDB database. A custom application then moves the data to databases in SQL Server 2017. The telemetry data in MongoDB has more than 500 attributes. The application changes the attribute names when the data is moved to SQL Server 2017.
+The database structure contains both OLAP and OLTP databases.
+
+Mechanical Workflow -
+Mechanical Workflow is used to track changes and improvements made to the cars during their lifetime.
+Currently, Mechanical Workflow runs on SQL Server 2017 as an OLAP system.
+Mechanical Workflow has a named Table1 that is 1 TB. Large aggregations are performed on a single column of Table 1.
+
+Requirements -
+
+Planned Changes -
+Litware is the process of rearchitecting its data estate to be hosted in Azure. The company plans to decommission the London datacentre and move all its applications to an Azure datacentre.
+
+Technical Requirements -
+Litware identifies the following technical requirements:
+Data collection for Race Central must be moved to Azure Cosmos DB and Azure SQL Database. The data must be written to the Azure datacentre closest to each race and must converge in the least amount of time.
+The query performance of Race Central must be stable, and the administrative time it takes to perform optimizations must be minimized.
+The datacentre for Mechanical Workflow must be moved to Azure SQL data Warehouse.
+Transparent data encryption (IDE) must be enabled on all data stores, whenever possible.
+An Azure Data Factory pipeline must be used to move data from Cosmos DB to SQL Database for Race Central. If the data load takes longer than 20 minutes, configuration changes must be made to Data Factory.
+The telemetry data must migrate toward a solution that is native to Azure.
+The telemetry data must be monitored for performance issues. You must adjust the Cosmos DB Request Units per second (RU/s) to maintain a performance
+SLA while minimizing the cost of the Ru/s.
+
+Data Masking Requirements -
+During rare weekends, visitors will be able to enter the remote portable offices. Litware is concerned that some proprietary information might be exposed. The company identifies the following data masking requirements for the Race Central data that will be stored in SQL Database:
+Only show the last four digits of the values in a column named SuspensionSprings.
+Only Show a zero value for the values in a column named ShockOilWeight.
+
+    ** You need to build a solution to collect the telemetry data for Race Control ?
+        API -> Table 
+            Azure Cosmos DB provides native support for wire protocol-compatible APIs for popular databases. These include MongoDB, Apache Cassandra, Gremlin, and
+            Azure Table storage.
+            Scenario: The telemetry data must migrate toward a solution that is native to Azure.
+
+        Consistency Level -> Strong
+            Use the strongest consistency Strong to minimize convergence time.
+            Scenario: The data must be written to the Azure datacentre closest to each race and must converge in the least amount of time.
+
+    
+    ** On which data store you configure TDE to meet the technical requirements?
+        SQL Data Warehouse ->
+            Scenario: Transparent data encryption (TDE) must be enabled on all data stores, whenever possible.
+            The datacentre for Mechanical Workflow must be moved to Azure SQL data Warehouse.
+            
+            Incorrect Answers:
+            A: Cosmos DB does not support TDE.
+
+    ** You are building the data store solution for Mechanical Workflow. How should you configure Table1? 
+        Table Type -> Hash distributed
+        Index type -> clustered columnstore
+
+    ** Which masking functions should you implement for each column to meet the data masking requirements? To answer, select the appropriate options in the answer area.
+        ShockOilWeight -> Default
+        SuspensionSpring -> Credit card 
+
+---
+
+A company plans to analyze a continuous flow of data from a social media platform by using Microsoft Azure Stream Analytics. The incoming data is formatted as one record per row.
+You need to create the input stream.
+How should you complete the REST API segment? To answer, select the appropriate configuration in the answer area.
+
+    Box 1: CSV - *********
+        A comma-separated values (CSV) file is a delimited text file that uses a comma to separate values. A CSV file stores tabular data (numbers and text) in plain text.
+        Each line of the file is a data record.
+        JSON and AVRO are not formatted as one record per row.
+
+
+    Box 2: "type":"Microsoft.ServiceBus/EventHub",
+        Properties include "EventHubName"
+
+
+---
+
+A company plans to develop solutions to perform batch processing of multiple sets of geospatial data.
+You need to implement the solutions.
+Which Azure services should you use? To answer, select the appropriate configuration in the answer area.
+
+    Box 1: HDInsight Tools for Visual Studio, use a native client app to run Interactive queries and batch processing
+        Azure HDInsight Tools for Visual Studio Code is an extension in the Visual Studio Code Marketplace for developing Hive Interactive Query, Hive Batch Job and
+        PySpark Job against Microsoft HDInsight.
+
+    Box 2: Hive View - use web browser to run Interactive queries and batch processing
+        You can use Apache Ambari Hive View with Apache Hadoop in HDInsight. The Hive View allows you to author, optimize, and run Hive queries from your web browser.
+
+    Box 3: HDInsight REST API - develop batch processing app using Azure HDInsight
+        Azure HDInsight REST APIs are used to create and manage HDInsight resources through Azure Resource Manager.
+
+
+--- 
+
+You develop data engineering solutions for a company.
+You need to deploy a Microsoft Azure Stream Analytics job for an IoT solution. The solution must:
+-> Minimize latency.
+-> Minimize bandwidth usage between the job and IoT device.
+Which four actions should you perform in sequence?
+
+    Step 1: Create and IoT hub and add the Azure Stream Analytics module to the IoT Hub namespace
+    An IoT Hub in Azure is required.
+
+    Step 2: Create an Azure Blob Storage container
+    To prepare your Stream Analytics job to be deployed on an IoT Edge device, you need to associate the job with a container in a storage account. 
+    When you go to deploy your job, the job definition is exported to the storage container.
+    Stream Analytics accepts data incoming from several kinds of event sources including Event Hubs, IoT Hub, and Blob storage.
+    
+    Step 3: Create an Azure Stream Analytics edge job and configure job definition save location
+    When you create an Azure Stream Analytics job to run on an IoT Edge device, it needs to be stored in a way that can be called from the device.
+
+    Step 4: Configure routes -
+    You are now ready to deploy the Azure Stream Analytics job on your IoT Edge device.
+    The routes that you declare define the flow of data through the IoT Edge device.
+
+
+
+---
+
+Box 1: Apache Sqoop -
+Apache Sqoop is a tool designed for efficiently transferring bulk data between Apache Hadoop and structured datastores such as relational databases.
+
+
+Box 2: Apache Kafka -
+Apache Kafka is a distributed streaming platform.
+A streaming platform has three key capabilities:
+Publish and subscribe to streams of records, similar to a message queue or enterprise messaging system.
+Store streams of records in a fault-tolerant durable way.
+Process streams of records as they occur.
+Kafka is generally used for two broad classes of applications:
+Building real-time streaming data pipelines that reliably get data between systems or applications
+Building real-time streaming applications that transform or react to the streams of data
+
+
+
+Box 3: Ambari Hive View -
+You can run Hive queries by using Apache Ambari Hive View. The Hive View allows you to author, optimize, and run Hive queries from your web browser.
+
+---
+
+SQLPackage utility
+
+---
+
+A role assignment consists of three elements: 
+    security principal, 
+    role definition, 
+    scope.
+
+
+---
+
+A. Assign Azure AD security groups to Azure Data Lake Storage.
+D. Create security groups in Azure Active Directory (Azure AD) and add project members.
+E. Configure access control lists (ACL) for the Azure Data Lake Storage account.
+
+-----
+
+Step 1: From the Azure Portal, set the Active Directory admin for SQL1.
+    Provision an Azure Active Directory administrator for your Azure SQL Database server.
+    You can provision an Azure Active Directory administrator for your Azure SQL server in the Azure portal and by using PowerShell.
+
+
+Step 2: On DB1, create a contained user for the Analysts group by using Transact-SQL
+    Create contained database users in your database mapped to Azure AD identities.
+    To create an Azure AD-based contained database user (other than the server administrator that owns the database), connect to the database with an Azure AD identity, as a user with at least the ALTER ANY USER permission. Then use the following Transact-SQL syntax:
+    CREATE USER <Azure_AD_principal_name> FROM EXTERNAL PROVIDER;
+
+
+Step 3: From Microsoft SQL Server Management Studio (SSMS), sign in to SQL1 by using the account set as the Active Directory admin.
+    Connect to the user database or data warehouse by using SSMS or SSDT
+    To confirm the Azure AD administrator is properly set up, connect to the master database using the Azure AD administrator account. To provision an Azure AD- based contained database user (other than the server administrator that owns the database), connect to the database with an Azure AD identity that has access to the database.
+
+
+Step 4: On DB1, grant the VIEW and SELECT DEFINTION..
+
+
+----
+
+Azure SQL -> Advanced Data Secuirty -> Advanced Threat protection settings -> send an email 
+
+---
+
+classify nformation as Confidential in Azure SQL 
+    Security and Advance Data Security -> Enable advanced Data Security Protection -> Data Discovery & Classification
+
+---
+
+Azure SQL prevent data leakage.
+
+    Step 1: Enable advanced threat protection
+    Step 2: Configure the service to send email alerts to security@contoso.team
+    Step 3: Configure the service to create alerts for threat detections of type data exfiltration
+
+
+--- 
+
+Azure Cosmos DB -> types of keys
+    two types of keys to authenticate users and provide access to its data and resources
+
+    1) Master Key
+        Master keys provide access to the all the administrative resources for the database account.
+        Provide access to accounts, databases, users, and permissions.
+
+    2) Resource Tokens
+        Resource tokens provide access to the application resources within a database.
+        to let external clien to query the database 
+
+
+---
+
+
+
+Step 1: Create a master key using password
+Step 2: Create or obtain a certificate protected by the master key
+
+Step 3: Set the context to the company database
+
+Step 4: Create a database encryption key and protect it by the certificate
+Step 5: Set the database to use encryption
+
+--
+
+
+enbale soft delete on Blob account
+
+--
+
+DataBase Scoped Credential :
+
+    SQL Server uses a database scoped credential to access non-public Azure blob storage 
+        or Kerberos-secured Hadoop clusters with PolyBase.
+
+    PolyBase cannot authenticate by using Azure AD authentication.
+
+
+---
+
+1. Access the Always Encrypted Wizard in SQL Server Management Studio
+2. Select the column to be encrypted
+3. Set the encryption type to Randomized
+4. Configure the master key to use the Windows Certificate Store *** -> wrong, it should be azure KeyVault in this Scenario
+5. Validate configuration results and deploy the solution
+
+---
+
+partial masking = custom masking
+
+---
+
+Tier 7 and Tier 8 partner access must be restricted to the database only ... SQL Server and DB firewall rules
+
+    Step 1: Set the Allow Azure Services to Access Server setting to 
+        By default, access through the SQL Database firewall is enabled for all Azure services, 
+    
+    Step 2: In the Azure portal, create a server firewall rule
+        Set up SQL Database server firewall rules .. apply to all DBs in the server !
+        we still need to scope it down to DB level 
+
+    Step 3: Connect to the database and use Transact-SQL to create a database firewall rule
+        Database-level firewall rules can only be configured using Transact-SQL (T-SQL) statements, and only after you've configured a server-level firewall rule.
+        ex: -> EXECUTE sp_set_database_firewall_rule N'Example DB Rule','0.0.0.4','0.0.0.4';
+
+
+---
+
+DWU limit vs DWU used 
+
+---
+
+identify when a user attempts to infer data from the masked columns -> audting 
+
+---
+
+automatic tuning on Azure SQL Database logical server
+
+---
+
+You need to recommend a tool that will monitor clusters and provide information to suggest how to scale.
+
+    Ambari Web UI does not provide information to suggest how to scale.
+    Instead monitor clusters by using Azure Log Analytics and HDInsight cluster management solutions.
