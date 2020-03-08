@@ -1178,7 +1178,7 @@ requirements :
 
 
 
-*********************************
+************************************************************************************ practice Test 02 ************************************************************************************
 
 You are developing a solution to visualize multiple terabytes of geospatial data.
 The solution has the following requirements:
@@ -1202,16 +1202,12 @@ The solution has the following requirements:
 
     1. Provision an Azure Cosmos DB account with the Azure Table API. Enable multi-region writes.
 
-
 ---
 
 affect your costs when sizing the Azure SQL Database elastic pools
-
 B. number of databases
 C. eDTUs consumption
-
 ---
-
 
 Copy data from on-premises SQL Server instance to Azure Blob storage.
 
@@ -1220,9 +1216,6 @@ Copy data from on-premises SQL Server instance to Azure Blob storage.
     Step 2: From the on-premises network, install and configure a self-hosted runtime.
         To use copy data from a SQL Server database that isn't publicly accessible, you need to set up a self-hosted integration runtime.
     Step 3: Configure a linked service to connect to the SQL Server instance.
-
-
-
 --- 
 
 A company runs Microsoft SQL Server in an on-premises virtual machine (VM).
@@ -1230,10 +1223,10 @@ You must migrate the database to Azure SQL Database. You synchronize users from 
 You need to configure Azure SQL Database to use an Azure AD user as administrator.
 What should you configure?
 
-A. For each Azure SQL Database, set the Access Control to administrator.
-B. For each Azure SQL Database server, set the Active Directory to administrator.
-    C. For each Azure SQL Database, set the Active Directory administrator role. ********
-D. For each Azure SQL Database server, set the Access Control to administrator.
+    A. For each Azure SQL Database, set the Access Control to administrator.
+    B. For each Azure SQL Database server, set the Active Directory to administrator.
+    C. For each Azure SQL Database, set the Active Directory administrator role. ******** !!!
+    D. For each Azure SQL Database server, set the Access Control to administrator.
 
     There are two administrative accounts act as administrators:
         1. Server admin
@@ -1241,8 +1234,6 @@ D. For each Azure SQL Database server, set the Access Control to administrator.
 
     One Azure Active Directory account, either an individual or security group account, can also be configured as an administrator. 
     It is optional to configure an Azure AD administrator, but an Azure AD administrator must be configured if you want to use Azure AD accounts to connect to SQL Database.
-
-
 ---
 
 You plan to create a dimension table in Azure Data Warehouse that will be less than 1 GB.
@@ -1252,14 +1243,13 @@ You need to create the table to meet the following requirements:
 Which type of table should you use?
     A. hash distributed
     B. heap
-    C. replicated **
+    C. replicated ** -> the table is small, and our requirements are minimal movment & faster queries
 
     Usually common dimension tables or tables that doesnâ€™t distribute evenly are good candidates for round-robin distributed table.
     Note: Dimension tables or other lookup tables in a schema can usually be stored as round-robin tables. 
     Usually these tables connect to more than one fact tables and optimizing for one join may not be the best idea. 
     Also usually dimension tables are smaller which can leave some distributions empty when hash distributed.
     Round-robin by definition guarantees a uniform data distribution.
-
 --- 
 
 You have an Azure SQL data warehouse.
@@ -1280,12 +1270,10 @@ Which command should you run to add the ItemID column to the external table?
         CREATE TABLE and DROP TABLE
         CREATE STATISTICS and DROP STATISTICS
         CREATE VIEW and DROP VIEW
-
 ---
 
 DWH
     DELETE PARTIONS CONTAIN OLD DATA 
-
 --
 
 You plan to implement an Azure Cosmos DB database that will write 100,000 JSON every 24 hours. The database will be replicated to three regions. Only one region will be writable.
@@ -1296,31 +1284,26 @@ You need to select a consistency level for the database to meet the following re
     Which consistency level should you select?
 
         Session: 
-            Within a single client session reads are guaranteed to honor the consistent-prefix (assuming a single â€œwriterâ€ session), 
+            Within a single client session reads are guaranteed to honor the consistent-prefix (assuming a single writer session), 
                 monotonic reads, 
                 monotonic writes, 
                 read-your-writes, 
                 and write-follows-reads guarantees. 
             Clients outside of the session performing writes will see eventual consistency.
-
 --- 
-
 
 You have an Azure Storage account that contains 100 GB of files. The files contain text and numerical values. 75% of the rows contain description data that has an average length of 1.1 MB.
 You plan to copy the data from the storage account to an Azure SQL data warehouse.
 You need to prepare the files to ensure that the data copies quickly.
 Solution: You modify the files to ensure that each row is less than 1 MB.
     Does this meet the goal? 
-
     NO
-
     Instead modify the files to ensure that each row is less than 1 MB.
-
 
 ---
 
-
 # CosmosDB Consistency levels and data durability
+
 You plan to deploy an Azure Cosmos DB database that supports multi-master replication.
 You need to select a consistency level for the database to meet the following requirements:
 -> Provide a recovery point objective (RPO) of less than 15 minutes.
@@ -1334,19 +1317,15 @@ NOTE: Each correct selection is worth one point.
     E. Consistent Prefix
 
     Answer : C D E
-
 ---
 
 # Storage account access tiers
-
 You need to ensure that you can recover any blob data from an Azure Storage account named storage xxxxx up to 30 days after the data is deleted.
 
     ->  The cool access tier has lower storage costs and higher access costs compared to hot storage. This tier is intended for data that will remain in the cool tier for at least 30 days.
-
 ---
 
-
-    Box 1: Yes - the quer joins 2 streams of partioned data
+    Box 1: Yes - the query joins 2 streams of partioned data
         You can now use a new extension of Azure Stream Analytics SQL to specify the number of partitions of a stream when reshuffling the data.
 
         The outcome is a stream that has the same partition scheme. Please see below for an example:
@@ -1367,7 +1346,6 @@ You need to ensure that you can recover any blob data from an Azure Storage acco
         these streams must have the same partition key and partition count.
 
     Box 3: Yes - providing 60 SUs will optimizate perforamnce of the quer
-
         10 partitions x six SUs = 60 SUs is fine.
 
         Note: Remember, Streaming Unit (SU) count, which is the unit of scale for Azure Stream Analytics, 
@@ -1375,29 +1353,24 @@ You need to ensure that you can recover any blob data from an Azure Storage acco
         In general, **** six SUs *** is a good number to assign to each partition. In case there are insufficient resources assigned to the job, 
         the system will only apply the repartition if it benefits the job.
 
-
---
+---
 
 You need to ensure that users in the West US region can read data from a local copy of an Azure Cosmos DB database
-
     enable the Geo-redundancy, Multi-region Writes, Avialibty Zone
     e Replicate data globally menu -> add region
-
-
---
+---
 
 You need to ensure that User1-10543936@ExamUsers.com can manage any databases hosted on an Azure SQL server named SQL10543936 by signing in using his Azure Active Directory (Azure AD) user account.
     Provision an Azure Active Directory administrator for your managed instance
     Each Azure SQL server (which hosts a SQL Database or SQL Data Warehouse) starts with a single server administrator account that is the administrator of the entire Azure SQL server. A second SQL Server administrator must be created, that is an Azure AD account. This principal is created as a contained database user in the master database.
     In SQL Server page, select Active Directory admin.
     n the Active Directory admin page, select Set admin
+---
 
--- 
 deployment using DevOps
     create deployment artifacts caonting an extraced AMR template
     paramtrize deployment using ARM template paramerters
     configure azure devops to deploy the deployment artifacts
-
 
 
     You need to provision the polling data storage account :
@@ -1409,8 +1382,6 @@ deployment using DevOps
             -> Read-access geo-redundant storage (RA-GRS) is based on GRS. RA-GRS replicates your data to another data center in a secondary region, 
                 and also provides you with the option to read from the secondary region. 
                 With RA-GRS, you can read from the secondary region regardless of whether Microsoft initiates a failover from the primary to secondary region.
-
-
 --
 
 Overview -
@@ -1466,7 +1437,6 @@ Only Show a zero value for the values in a column named ShockOilWeight.
             Use the strongest consistency Strong to minimize convergence time.
             Scenario: The data must be written to the Azure datacentre closest to each race and must converge in the least amount of time.
 
-    
     ** On which data store you configure TDE to meet the technical requirements?
         SQL Data Warehouse ->
             Scenario: Transparent data encryption (TDE) must be enabled on all data stores, whenever possible.
@@ -1497,8 +1467,6 @@ How should you complete the REST API segment? To answer, select the appropriate 
 
     Box 2: "type":"Microsoft.ServiceBus/EventHub",
         Properties include "EventHubName"
-
-
 ---
 
 A company plans to develop solutions to perform batch processing of multiple sets of geospatial data.
@@ -1515,71 +1483,63 @@ Which Azure services should you use? To answer, select the appropriate configura
     Box 3: HDInsight REST API - develop batch processing app using Azure HDInsight
         Azure HDInsight REST APIs are used to create and manage HDInsight resources through Azure Resource Manager.
 
-
 --- 
-
 You develop data engineering solutions for a company.
 You need to deploy a Microsoft Azure Stream Analytics job for an IoT solution. The solution must:
 -> Minimize latency.
 -> Minimize bandwidth usage between the job and IoT device.
 Which four actions should you perform in sequence?
 
-    Step 1: Create and IoT hub and add the Azure Stream Analytics module to the IoT Hub namespace
-    An IoT Hub in Azure is required.
+    Step 1: Create an IoT hub and add the Azure Stream Analytics module to the IoT Hub namespace
+        An IoT Hub in Azure is required.
 
     Step 2: Create an Azure Blob Storage container
-    To prepare your Stream Analytics job to be deployed on an IoT Edge device, you need to associate the job with a container in a storage account. 
-    When you go to deploy your job, the job definition is exported to the storage container.
-    Stream Analytics accepts data incoming from several kinds of event sources including Event Hubs, IoT Hub, and Blob storage.
+        To prepare your Stream Analytics job to be deployed on an IoT Edge device, you need to associate the job with a container in a storage account. 
+        When you go to deploy your job, the job definition is exported to the storage container.
+        Stream Analytics accepts data incoming from several kinds of event sources including Event Hubs, IoT Hub, and Blob storage.
     
     Step 3: Create an Azure Stream Analytics edge job and configure job definition save location
-    When you create an Azure Stream Analytics job to run on an IoT Edge device, it needs to be stored in a way that can be called from the device.
+        When you create an Azure Stream Analytics job to run on an IoT Edge device, it needs to be stored in a way that can be called from the device.
 
     Step 4: Configure routes -
-    You are now ready to deploy the Azure Stream Analytics job on your IoT Edge device.
-    The routes that you declare define the flow of data through the IoT Edge device.
-
-
+        You are now ready to deploy the Azure Stream Analytics job on your IoT Edge device.
+        The routes that you declare define the flow of data through the IoT Edge device.
 
 ---
 
 Box 1: Apache Sqoop -
-Apache Sqoop is a tool designed for efficiently transferring bulk data between Apache Hadoop and structured datastores such as relational databases.
+    Apache Sqoop is a tool designed for efficiently transferring bulk data between Apache Hadoop and structured datastores such as relational databases.
 
 
 Box 2: Apache Kafka -
-Apache Kafka is a distributed streaming platform.
-A streaming platform has three key capabilities:
-Publish and subscribe to streams of records, similar to a message queue or enterprise messaging system.
-Store streams of records in a fault-tolerant durable way.
-Process streams of records as they occur.
-Kafka is generally used for two broad classes of applications:
-Building real-time streaming data pipelines that reliably get data between systems or applications
-Building real-time streaming applications that transform or react to the streams of data
+    Apache Kafka is a distributed streaming platform.
+    A streaming platform has three key capabilities:
+        1. [Publish and subscribe] to streams of records, similar to a message queue or enterprise messaging system.
+        2. [Store streams] of records in a fault-tolerant durable way.
+        3. [Process streams] of records as they occur.
 
-
+    Kafka is generally used for two broad classes of applications:
+        - Building real-time streaming data pipelines that reliably get data between systems or applications
+        - Building real-time streaming applications that transform or react to the streams of data
 
 Box 3: Ambari Hive View -
-You can run Hive queries by using Apache Ambari Hive View. The Hive View allows you to author, optimize, and run Hive queries from your web browser.
+    You can run Hive queries by using Apache Ambari Hive View. 
+    The Hive View allows you to author, optimize, and run Hive queries from your web browser.
 
 ---
 
 SQLPackage utility
-
 ---
 
 A role assignment consists of three elements: 
     security principal, 
     role definition, 
     scope.
-
-
 ---
 
-A. Assign Azure AD security groups to Azure Data Lake Storage.
 D. Create security groups in Azure Active Directory (Azure AD) and add project members.
+A. Assign Azure AD security groups to Azure Data Lake Storage.
 E. Configure access control lists (ACL) for the Azure Data Lake Storage account.
-
 -----
 
 Step 1: From the Azure Portal, set the Active Directory admin for SQL1.
@@ -1590,7 +1550,7 @@ Step 1: From the Azure Portal, set the Active Directory admin for SQL1.
 Step 2: On DB1, create a contained user for the Analysts group by using Transact-SQL
     Create contained database users in your database mapped to Azure AD identities.
     To create an Azure AD-based contained database user (other than the server administrator that owns the database), connect to the database with an Azure AD identity, as a user with at least the ALTER ANY USER permission. Then use the following Transact-SQL syntax:
-    CREATE USER <Azure_AD_principal_name> FROM EXTERNAL PROVIDER;
+        CREATE USER <Azure_AD_principal_name> FROM EXTERNAL PROVIDER;
 
 
 Step 3: From Microsoft SQL Server Management Studio (SSMS), sign in to SQL1 by using the account set as the Active Directory admin.
@@ -1600,25 +1560,19 @@ Step 3: From Microsoft SQL Server Management Studio (SSMS), sign in to SQL1 by u
 
 Step 4: On DB1, grant the VIEW and SELECT DEFINTION..
 
-
 ----
 
 Azure SQL -> Advanced Data Secuirty -> Advanced Threat protection settings -> send an email 
-
 ---
 
 classify nformation as Confidential in Azure SQL 
     Security and Advance Data Security -> Enable advanced Data Security Protection -> Data Discovery & Classification
-
 ---
 
 Azure SQL prevent data leakage.
-
     Step 1: Enable advanced threat protection
     Step 2: Configure the service to send email alerts to security@contoso.team
     Step 3: Configure the service to create alerts for threat detections of type data exfiltration
-
-
 --- 
 
 Azure Cosmos DB -> types of keys
@@ -1631,11 +1585,7 @@ Azure Cosmos DB -> types of keys
     2) Resource Tokens
         Resource tokens provide access to the application resources within a database.
         to let external clien to query the database 
-
-
 ---
-
-
 
 Step 1: Create a master key using password
 Step 2: Create or obtain a certificate protected by the master key
@@ -1644,22 +1594,16 @@ Step 3: Set the context to the company database
 
 Step 4: Create a database encryption key and protect it by the certificate
 Step 5: Set the database to use encryption
-
---
-
+---
 
 enbale soft delete on Blob account
-
---
+---
 
 DataBase Scoped Credential :
-
     SQL Server uses a database scoped credential to access non-public Azure blob storage 
         or Kerberos-secured Hadoop clusters with PolyBase.
 
     PolyBase cannot authenticate by using Azure AD authentication.
-
-
 ---
 
 1. Access the Always Encrypted Wizard in SQL Server Management Studio
@@ -1667,11 +1611,9 @@ DataBase Scoped Credential :
 3. Set the encryption type to Randomized
 4. Configure the master key to use the Windows Certificate Store *** -> wrong, it should be azure KeyVault in this Scenario
 5. Validate configuration results and deploy the solution
-
 ---
 
 partial masking = custom masking
-
 ---
 
 Tier 7 and Tier 8 partner access must be restricted to the database only ... SQL Server and DB firewall rules
@@ -1686,20 +1628,15 @@ Tier 7 and Tier 8 partner access must be restricted to the database only ... SQL
     Step 3: Connect to the database and use Transact-SQL to create a database firewall rule
         Database-level firewall rules can only be configured using Transact-SQL (T-SQL) statements, and only after you've configured a server-level firewall rule.
         ex: -> EXECUTE sp_set_database_firewall_rule N'Example DB Rule','0.0.0.4','0.0.0.4';
-
-
 ---
 
 DWU limit vs DWU used 
-
 ---
 
 identify when a user attempts to infer data from the masked columns -> audting 
-
 ---
 
 automatic tuning on Azure SQL Database logical server
-
 ---
 
 You need to recommend a tool that will monitor clusters and provide information to suggest how to scale.
@@ -1707,7 +1644,8 @@ You need to recommend a tool that will monitor clusters and provide information 
     Ambari Web UI does not provide information to suggest how to scale.
     Instead monitor clusters by using Azure Log Analytics and HDInsight cluster management solutions.
 
--------------------------------------------------------------------- Done --------------------------------------------------------------------
+
+************************************************************************************ End practice Test 02 ************************************************************************************
 
 # on-premises data gateway
 
