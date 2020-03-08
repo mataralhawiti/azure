@@ -1706,3 +1706,40 @@ You need to recommend a tool that will monitor clusters and provide information 
 
     Ambari Web UI does not provide information to suggest how to scale.
     Instead monitor clusters by using Azure Log Analytics and HDInsight cluster management solutions.
+
+-------------------------------------------------------------------- Done --------------------------------------------------------------------
+
+# on-premises data gateway
+
+# database access to SQL Database and Azure Synapse Analytics
+    -> Two administrative accounts that act as administrators
+        1. Server admin
+        2. Active Directory admin
+
+    ->  CREATE USER
+        => ** User with Azure Active Directory
+            CREATE USER [mike@contoso.com] FROM EXTERNAL PROVIDER; 
+        
+        => ** SQL Database contained database user
+            CREATE USER Ann WITH PASSWORD = '<strong_password>';
+        
+        => ** SQL Server user based on a SQL Server authentication login
+            CREATE USER Mary FROM LOGIN Mary;
+
+
+# create Azure AD SQL user 
+    1. create Azure AD Admin, the assign it as SQL Server Admin
+        storage@maalhawitihotmail.onmicrosoft.com
+
+    2. Using Azure AD admin, add Azure AD user to spcific AD DB 
+        -- master
+        CREATE USER [matar-test@maalhawitihotmail.onmicrosoft.com] FROM EXTERNAL PROVIDER;
+        GO
+
+
+        -- ContaineDB
+        CREATE USER [matar-test@maalhawitihotmail.onmicrosoft.com] FROM EXTERNAL PROVIDER;
+        GO
+
+        ALTER ROLE db_owner ADD MEMBER [matar-test@maalhawitihotmail.onmicrosoft.com];
+        GO
