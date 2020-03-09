@@ -784,12 +784,12 @@ requirements :
         ===> Column Master keys (CMK) :  to encrypt encryption keys, are stored in an external key store
 
         : supports two types of encryption: 
-            -> randomized encryption
+            -> deterministic encryption
                 : always generates the same encrypted value for any given plain text value. 
                 : Using deterministic encryption allows point lookups, equality joins, grouping and indexing on encrypted columns.
                 : it may also allow unauthorized users to guess information about encrypted values by examining patterns in the encrypted column
 
-            -> deterministic encryption.
+            -> randomized encryption.
                 : uses a method that encrypts data in a less predictable manner
                 : Randomized encryption is more secure, but prevents searching, grouping, indexing, and joining on encrypted columns.
 
