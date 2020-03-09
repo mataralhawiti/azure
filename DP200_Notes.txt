@@ -139,6 +139,7 @@ requirements :
 
 
 # PolyBase in DWH
+    : Master Key
     : create a database-scoped credential => that secures the credentials to the blob storage
     : External Data Source
     : External File Formate
@@ -1681,3 +1682,8 @@ You need to recommend a tool that will monitor clusters and provide information 
 
         ALTER ROLE db_owner ADD MEMBER [matar-test@maalhawitihotmail.onmicrosoft.com];
         GO
+
+
+# High availability with Azure Cosmos DB
+    For high availability --> always configure your Cosmos accounts to have multiple write regions.
+    t's always recommended to set up at least two regions (preferably, at least two write regions)
