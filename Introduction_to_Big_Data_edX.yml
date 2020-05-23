@@ -1,0 +1,36 @@
+# course link : https://www.edx.org/course/introduction-to-big-data-2
+
+Data services :
+  - Store files in Azure
+  - Azure storage
+  - Azure data lake Store
+  - Azure SQL DB
+  - Azure SQL datawarehouse
+  - NoSQL :
+    - key-value :> Cassandara, Azure Table storage
+    - Document-oriented :> Azure DocumentDB API, MongoDB
+    - Graph :> CosmodDB Graph API
+
+Bg data : high volume, varity, volicty
+Big data at rest : it's a pattern in big data world, which is called Batch Processing.
+                     One of the principle working  with big data is to try to process it where it is.
+                     So, we will run the processing jobs on data in its storage location, doing so we will
+                     take advantage parallesim. In other word, we will scale out data processing across multile untits
+                     of processing. Those units could be multiple servers of cluster or just logical units.
+Big data in motion : which is stream real-time data processing. First, we need to captre the data in reliable way.
+                      We have variouse technologies to do so such as queues or hubs.
+                      Once we capture the data, we want to do stream processing. Then we either use the result for reporting or store for later.
+Lambda architecture : when combine Batch processing with real-time Processing.
+Big data technolgies :
+  - Azure storage
+  - Azure Data lake storage
+  - Azure data lake analytics (U-SQL)
+  - Azure data factory (orchistration, piplines, workflows)
+  - Azure HDInsight
+  - Azure Event Hubs or Apach Kafka for data capturing "message broker" real-time data processing.
+  - Azure Stream Analytics, Kafka Stream, Apach Spark or Apach Storm  for data processing real-time processing pattern.
+
+Batch processing in Azure : examples in lab
+Real-time processing in Azure : examples in lab
+Batch processing with HDInsight : Hadoop cluster
+Real-time processing with HDInsight : Apach Kafka for message broker, Apache Spark or Apache Storm for data processing.
